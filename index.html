@@ -455,74 +455,39 @@
             }
         }
 
-        function saveItemToAPI(itemType, item, operation = 'update') {
-            return new Promise(function(resolve, reject) {
-                const callbackName = 'saveCallback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                
-                window[callbackName] = function(response) {
-                    delete window[callbackName];
-                    document.head.removeChild(script);
-                    
-                    if (response.success) {
-                        resolve(response);
-                    } else {
-                        reject(new Error(response.error || 'Failed to save data'));
-                    }
-                };
-                
-                const script = document.createElement('script');
-                const params = new URLSearchParams({
-                    callback: callbackName,
-                    action: 'saveData',
-                    itemType: itemType,
-                    item: JSON.stringify(item),
-                    operation: operation
-                });
-                
-                script.src = API_BASE_URL + '?' + params.toString();
-                script.onerror = function() {
-                    delete window[callbackName];
-                    document.head.removeChild(script);
-                    reject(new Error('Network error'));
-                };
-                
-                document.head.appendChild(script);
-            });
-        }
+        async function saveItemToAPI(itemType, item, operation = 'update') {
+    const url = API_BASE_URL + 
+        '?action=saveData' +
+        '&itemType=' + encodeURIComponent(itemType) +
+        '&item=' + encodeURIComponent(JSON.stringify(item)) +
+        '&operation=' + encodeURIComponent(operation);
+    
+    const response = await fetch(url);
+    const result = await response.json();
+    
+    if (!result.success) {
+        throw new Error(result.error || 'Save failed');
+    }
+    
+    return result;
+}
 
-        function deleteItemFromAPI(itemType, itemId) {
-            return new Promise(function(resolve, reject) {
-                const callbackName = 'deleteCallback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                
-                window[callbackName] = function(response) {
-                    delete window[callbackName];
-                    document.head.removeChild(script);
-                    
-                    if (response.success) {
-                        resolve(response);
-                    } else {
-                        reject(new Error(response.error || 'Failed to delete data'));
-                    }
-                };
-                
-                const script = document.createElement('script');
-                const params = new URLSearchParams({
-                    callback: callbackName,
-                    action: 'deleteData',
-                    itemType: itemType,
-                    itemId: itemId
-                });
-                
-                script.src = API_BASE_URL + '?' + params.toString();
-                script.onerror = function() {
-                    delete window[callbackName];
-                    document.head.removeChild(script);
-                    reject(new Error('Network error'));
-                };
-                
-                document.head.appendChild(script);
-            });
-        }
+        async function saveItemToAPI(itemType, item, operation = 'update') {
+    const url = API_BASE_URL + 
+        '?action=saveData' +
+        '&itemType=' + encodeURIComponent(itemType) +
+        '&item=' + encodeURIComponent(JSON.stringify(item)) +
+        '&operation=' + encodeURIComponent(operation);
+    
+    const response = await fetch(url);
+    const result = await response.json();
+    
+    if (!result.success) {
+        throw new Error(result.error || 'Save failed');
+    }
+    
+    return result;
+}
 
         // UI Helper Functions
         function showLoading(show) {
