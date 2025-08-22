@@ -268,94 +268,95 @@
 
 
         <!-- Plex Media Modal -->
-        <div id="plexModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 hidden">
-            <div class="bg-gradient-to-br from-gray-900 to-black rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-yellow-500/30">
-                <div class="p-6">
-                    <div class="text-center mb-6">
-                        <img src="images/plexlogo.png" alt="Plex Logo" class="w-24 h-auto mx-auto mb-4">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-2xl font-bold text-yellow-400">How to Download Mike's Movies & Shows on Plex</h3>
-                            <button onclick="closePlexModal()" class="text-gray-400 hover:text-white ml-4">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="text-gray-100 space-y-6">
-                        <div class="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-2xl p-4 border border-yellow-500/30">
-                            <p class="text-yellow-200">Hi Everyone! I've set up a Plex library with <strong>750 movies</strong> and <strong>800 TV episodes</strong>. You can download them onto your phone or tablet and watch them offline – like on a plane or during the trip.</p>
-                        </div>
-                        
-                        <div>
-                            <h4 class="text-xl font-semibold text-yellow-400 mb-3">1. Create Your Own Plex Account</h4>
-                            <ul class="space-y-2 ml-4 text-gray-200">
-                                <li>• Go to <a href="https://www.plex.tv" target="_blank" class="text-yellow-400 hover:text-yellow-300 underline">plex.tv</a> and click <strong>Sign Up</strong></li>
-                                <li>• Use your email address to create a free account (No payment required)</li>
-                                <li>• Remember the email and password you used – you'll need them for the Plex app</li>
-                            </ul>
-                        </div>
-                        
-                        <div>
-                            <h4 class="text-xl font-semibold text-yellow-400 mb-3">2. Send Me Your Plex Email</h4>
-                            <ul class="space-y-2 ml-4 text-gray-200">
-                                <li>• After you sign up, send me the email address you used for Plex</li>
-                                <li>• Text me at <strong class="text-yellow-300">513-799-7977</strong> or email <strong class="text-yellow-300">mikenewman@live.com</strong></li>
-                                <li>• Once I have it, I will give you access to my movie and TV library</li>
-                            </ul>
-                        </div>
-                        
-                        <div>
-                            <h4 class="text-xl font-semibold text-yellow-400 mb-3">3. Install the Plex App</h4>
-                            <ul class="space-y-2 ml-4 text-gray-200">
-                                <li>• <strong>iPhone/iPad:</strong> Open the App Store, search for <strong>Plex</strong>, and install <strong>Plex: Stream Movies & TV</strong></li>
-                                <li>• <strong>Android:</strong> Open the Google Play Store, search for <strong>Plex</strong>, and install <strong>Plex: Stream Movies & TV</strong></li>
-                            </ul>
-                        </div>
-                        
-                        <div>
-                            <h4 class="text-xl font-semibold text-yellow-400 mb-3">4. Sign In and Accept My Invite</h4>
-                            <ul class="space-y-2 ml-4 text-gray-200">
-                                <li>• Open the Plex app and sign in with the account you just created</li>
-                                <li>• You'll see a notification or email invite from me – accept it</li>
-                                <li>• My library will then appear in your Plex app</li>
-                            </ul>
-                        </div>
-                        
-                        <div>
-                            <h4 class="text-xl font-semibold text-yellow-400 mb-3">5. How to Download</h4>
-                            <ul class="space-y-2 ml-4 text-gray-200">
-                                <li>• Open the Plex app and go to my library</li>
-                                <li>• Scroll through the movies or TV shows until you find one you want to watch</li>
-                                <li>• Tap on it, then tap the <span class="bg-yellow-500 text-black px-2 py-1 rounded font-bold">Download button</span> (a downward arrow)</li>
-                                <li>• The download will start and appear in your <strong>Downloads</strong> section of the app</li>
-                                <li>• Once finished, you can watch it anytime – even with no internet</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-2xl p-4 border border-cyan-500/30">
-                            <h4 class="text-cyan-200 font-semibold mb-2">Notes</h4>
-                            <div class="text-cyan-200 space-y-1">
-                                <p>• I have a library of <strong>750 movies</strong> and <strong>800 TV episodes</strong>, and you can pick whichever ones you'd like to download before the trip</p>
-                                <p>• Downloads use storage space on your device</p>
-                                <p>• If there's something you'd like that isn't in my library, let me know and I'll try to add it</p>
-                            </div>
-                        </div>
-                        
-                        <div class="text-center">
-                            <p class="text-green-400 text-lg">✅ That's it! Before the trip, download the movies and shows you want, and you'll be ready to watch offline wherever you are.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-6 pt-4 border-t border-gray-700">
-                        <button onclick="closePlexModal()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white py-3 rounded-2xl font-medium transition-colors">
-                            🌺 Got it! Close
-                        </button>
-                    </div>
+<div id="plexModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 hidden">
+    <div class="bg-gradient-to-br from-gray-900 to-black rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-yellow-500/30">
+        <div class="p-6">
+            <div class="text-center mb-6">
+                <img src="images/plexlogo.png" alt="Plex Logo" class="w-24 h-auto mx-auto mb-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-2xl font-bold text-yellow-400">How to Download Mike's Movies & Shows on Plex</h3>
+                    <button onclick="closePlexModal()" class="text-gray-400 hover:text-white ml-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
+            
+            <div class="text-gray-100 space-y-6">
+                <div class="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-2xl p-4 border border-yellow-500/30">
+                    <p class="text-yellow-200">Hi Everyone! I've set up a Plex library with <strong>750 movies</strong> and <strong>800 TV episodes</strong>. You can download them onto your phone or tablet and watch them offline – like on a plane or during the trip.</p>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-semibold text-yellow-400 mb-3">1. Install the Plex App</h4>
+                    <ul class="space-y-2 ml-4 text-gray-200">
+                        <li>• <strong>iPhone/iPad:</strong> Open the App Store, search for <strong>Plex</strong>, and install <strong>Plex: Stream Movies & TV</strong></li>
+                        <li>• <strong>Android:</strong> Open the Google Play Store, search for <strong>Plex</strong>, and install <strong>Plex: Stream Movies & TV</strong></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-semibold text-yellow-400 mb-3">2. Wait for My Main Credentials</h4>
+                    <ul class="space-y-2 ml-4 text-gray-200">
+                        <li>• I will send you the main Plex account login details in a <strong>separate communication</strong></li>
+                        <li>• Keep an eye out for this – you'll need these credentials to sign in</li>
+                        <li>• Text me at <strong class="text-yellow-300">513-799-7977</strong> or email <strong class="text-yellow-300">mikenewman@live.com</strong> if you don't receive them</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-semibold text-yellow-400 mb-3">3. Sign In to Plex</h4>
+                    <ul class="space-y-2 ml-4 text-gray-200">
+                        <li>• Open the Plex app and use the main credentials I sent you to sign in</li>
+                        <li>• After signing in, you'll see a list of different user profiles</li>
+                        <li>• Look for and select <strong class="text-yellow-300">"Newman Guest"</strong></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-semibold text-yellow-400 mb-3">4. Use the Guest Account</h4>
+                    <ul class="space-y-2 ml-4 text-gray-200">
+                        <li>• When prompted for the Newman Guest password, enter: <strong class="text-yellow-300 bg-yellow-500/20 px-2 py-1 rounded">1234</strong></li>
+                        <li>• This will give you access to my complete movie and TV library</li>
+                        <li>• Everyone should use this same guest account</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-semibold text-yellow-400 mb-3">5. How to Download</h4>
+                    <ul class="space-y-2 ml-4 text-gray-200">
+                        <li>• Once in the Newman Guest account, browse through the movies or TV shows</li>
+                        <li>• Find something you want to watch offline and tap on it</li>
+                        <li>• Tap the <span class="bg-yellow-500 text-black px-2 py-1 rounded font-bold">Download button</span> (a downward arrow)</li>
+                        <li>• The download will start and appear in your <strong>Downloads</strong> section of the app</li>
+                        <li>• Once finished, you can watch it anytime – even with no internet</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-2xl p-4 border border-cyan-500/30">
+                    <h4 class="text-cyan-200 font-semibold mb-2">Important Notes</h4>
+                    <div class="text-cyan-200 space-y-1">
+                        <p>• <strong>Everyone uses the same guest account:</strong> Newman Guest (password: 1234)</p>
+                        <p>• I have a library of <strong>750 movies</strong> and <strong>800 TV episodes</strong></p>
+                        <p>• Downloads use storage space on your device</p>
+                        <p>• If there's something you'd like that isn't in my library, let me know and I'll try to add it</p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <p class="text-green-400 text-lg">✅ That's it! Download your favorites before the trip and you'll be ready to watch offline anywhere!</p>
+                </div>
+            </div>
+            
+            <div class="mt-6 pt-4 border-t border-gray-700">
+                <button onclick="closePlexModal()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white py-3 rounded-2xl font-medium transition-colors">
+                    🌺 Got it! Close
+                </button>
+            </div>
         </div>
+    </div>
+</div>
 
         <!-- Bottom Navigation -->
         <div class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t-2 border-cyan-200/50 shadow-2xl z-50">
