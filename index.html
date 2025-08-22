@@ -187,15 +187,27 @@
                     <div id="flightContent"></div>
                 </div>
 
-                <!-- Activities View -->
-                <div id="activitiesView" class="space-y-4 hidden">
+                <!-- Experiences View -->
+                <div id="experiencesView" class="space-y-4 hidden">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-xl font-semibold text-gray-900">Activity Options</h2>
-                        <button onclick="addNewActivity()" class="bg-gradient-to-r from-emerald-400 to-teal-500 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:from-emerald-500 hover:to-teal-600">
-                            Add Activity
+                        <h2 class="text-xl font-semibold text-gray-900">Experiences</h2>
+                        <button onclick="addNewExperience()" class="bg-gradient-to-r from-emerald-400 to-teal-500 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:from-emerald-500 hover:to-teal-600">
+                            Add Experience
                         </button>
                     </div>
-                    <div id="activitiesContent"></div>
+                    
+                    <div class="bg-gradient-to-r from-cyan-100/80 to-blue-100/80 rounded-3xl p-1">
+                        <div class="grid grid-cols-2 gap-1">
+                            <button onclick="setExperienceSubTab('activities')" id="activitiesSubTab" class="py-2 px-4 rounded-2xl text-sm font-medium transition-colors bg-white text-blue-600 shadow-sm">
+                                Activities
+                            </button>
+                            <button onclick="setExperienceSubTab('dining')" id="diningSubTab" class="py-2 px-4 rounded-2xl text-sm font-medium transition-colors text-gray-600 hover:text-gray-900">
+                                Dining
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="experienceContent"></div>
                 </div>
 
                 <!-- Hawaii View -->
@@ -256,7 +268,7 @@
 
 
         <!-- Plex Media Modal -->
-        <div id="plexModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 hidden">
+        <div id="plexModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden">
             <div class="bg-gradient-to-br from-gray-900 to-black rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-yellow-500/30">
                 <div class="p-6">
                     <div class="text-center mb-6">
@@ -382,11 +394,11 @@
                     </svg>
                     Maui
                 </button>
-                <button onclick="setActiveTab('activities')" id="activitiesTab" class="px-2 py-3 text-xs font-medium text-gray-600 hover:text-gray-900">
+                <button onclick="setActiveTab('experiences')" id="experiencesTab" class="px-2 py-3 text-xs font-medium text-gray-600 hover:text-gray-900">
                     <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                     </svg>
-                    Activities
+                    Experiences
                 </button>
             </div>
         </div>
@@ -403,6 +415,7 @@
         let currentActiveTab = 'dashboard';
         let currentSelectedPerson = 'all';
         let currentFlightSubTab = 'arrivals';
+        let currentExperienceSubTab = 'activities';
         let currentEditingItem = null;
         let currentEditingType = null;
 
@@ -415,7 +428,8 @@
             interIslandFlights: [],
             maui: [],
             departures: [],
-            activities: []
+            activities: [],
+            dining: []
         };
 
         // API Functions
@@ -549,7 +563,7 @@
                 setSelectedPerson('all');
             }
             
-            const views = ['dashboardView', 'calendarView', 'flightsView', 'activitiesView', 'hawaiiView', 'mauiView'];
+            const views = ['dashboardView', 'calendarView', 'flightsView', 'experiencesView', 'hawaiiView', 'mauiView'];
             views.forEach(function(viewId) {
                 const el = document.getElementById(viewId);
                 if (el) el.classList.add('hidden');
@@ -559,7 +573,7 @@
                 'dashboard': 'dashboardView',
                 'calendar': 'calendarView',
                 'flights': 'flightsView',
-                'activities': 'activitiesView',
+                'experiences': 'experiencesView',
                 'hawaii': 'hawaiiView',
                 'maui': 'mauiView'
             };
@@ -568,7 +582,7 @@
                 document.getElementById(viewMap[tab]).classList.remove('hidden');
             }
             
-            const tabButtons = ['homeTab', 'calendarTab', 'flightsTab', 'hawaiiTab', 'mauiTab', 'activitiesTab'];
+            const tabButtons = ['homeTab', 'calendarTab', 'flightsTab', 'hawaiiTab', 'mauiTab', 'experiencesTab'];
             tabButtons.forEach(function(tabId) {
                 const tabEl = document.getElementById(tabId);
                 if (tabEl) {
@@ -625,7 +639,40 @@
             loadFlightContent(subTab);
         }
 
-        // Content loading functions
+        function setExperienceSubTab(subTab) {
+            currentExperienceSubTab = subTab;
+            
+            const experienceTabs = ['activitiesSubTab', 'diningSubTab'];
+            experienceTabs.forEach(function(tabId) {
+                const tab = document.getElementById(tabId);
+                if (tab) {
+                    tab.className = 'py-2 px-4 rounded-2xl text-sm font-medium transition-colors text-gray-600 hover:text-gray-900';
+                }
+            });
+            
+            const activeTabMap = {
+                'activities': 'activitiesSubTab',
+                'dining': 'diningSubTab'
+            };
+            
+            const activeTab = document.getElementById(activeTabMap[subTab]);
+            if (activeTab) {
+                activeTab.className = 'py-2 px-4 rounded-2xl text-sm font-medium transition-colors bg-white text-blue-600 shadow-sm';
+            }
+            
+            loadExperienceContent(subTab);
+        }
+
+        function loadExperienceContent(subTab) {
+            const container = document.getElementById('experienceContent');
+            container.innerHTML = '';
+            
+            if (subTab === 'activities') {
+                loadActivities();
+            } else if (subTab === 'dining') {
+                loadDining();
+            }
+        }
         function loadTabContent(tab) {
             switch (tab) {
                 case 'dashboard':
@@ -637,8 +684,8 @@
                 case 'flights':
                     loadFlightContent(currentFlightSubTab);
                     break;
-                case 'activities':
-                    loadActivities();
+                case 'experiences':
+                    loadExperienceContent(currentExperienceSubTab);
                     break;
                 case 'hawaii':
                     loadHawaii();
@@ -899,7 +946,7 @@
         }
 
         function loadActivities() {
-            const container = document.getElementById('activitiesContent');
+            const container = document.getElementById('experienceContent');
             container.innerHTML = '';
             
             if (!tripData.activities || tripData.activities.length === 0) {
@@ -911,6 +958,77 @@
                 const activityCard = createActivityCard(activity);
                 container.appendChild(activityCard);
             });
+        }
+
+        function loadDining() {
+            const container = document.getElementById('experienceContent');
+            container.innerHTML = '';
+            
+            if (!tripData.dining || tripData.dining.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-gray-500">No dining options found</div>';
+                return;
+            }
+            
+            tripData.dining.forEach(function(dining) {
+                const diningCard = createDiningCard(dining);
+                container.appendChild(diningCard);
+            });
+        }
+
+        function createDiningCard(dining) {
+            const card = document.createElement('div');
+            card.className = 'bg-gradient-to-br from-purple-50 via-pink-50 to-rose-100 rounded-3xl border-2 border-purple-200/50 p-6 mb-4 shadow-xl';
+            
+            const islandColor = dining.island === 'Maui' ? 'bg-orange-500' : 'bg-green-500';
+            
+            card.innerHTML = 
+                '<!-- Title at top -->' +
+                '<h3 class="font-bold text-xl text-gray-900 mb-3">' + dining.name + '</h3>' +
+                
+                '<!-- Status and buttons -->' +
+                '<div class="flex items-center justify-between mb-4">' +
+                    '<div class="flex items-center space-x-3">' +
+                        '<span class="px-3 py-1 rounded-full text-sm font-bold text-white ' + islandColor + '">' +
+                            dining.island +
+                        '</span>' +
+                        '<div class="text-sm text-purple-600 font-medium">' + dining.type + '</div>' +
+                    '</div>' +
+                    '<div class="flex items-center space-x-2">' +
+                        '<button onclick="editItem(' + dining.id + ', \'dining\')" class="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-xl text-white transition-colors shadow-lg">' +
+                            '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>' +
+                            '</svg>' +
+                        '</button>' +
+                        '<button onclick="deleteItem(' + dining.id + ', \'dining\')" class="p-3 bg-gradient-to-br from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 rounded-xl text-white transition-colors shadow-lg">' +
+                            '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>' +
+                            '</svg>' +
+                        '</button>' +
+                    '</div>' +
+                '</div>' +
+                
+                '<!-- Dining details -->' +
+                '<div class="space-y-2">' +
+                    '<div class="flex flex-wrap gap-2">' +
+                        (dining.website ? 
+                            '<a href="' + (dining.website.startsWith('http') ? dining.website : 'https://' + dining.website) + '" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
+                                '<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>' +
+                                '</svg>' +
+                                'Website' +
+                            '</a>' : '') +
+                    '</div>' +
+                    '<div class="border-t pt-3">' +
+                        '<div class="text-sm font-medium text-gray-700 mb-2">People interested:</div>' +
+                        '<div class="text-sm text-purple-600">' +
+                            (dining.participants && dining.participants.length > 0 ? 
+                                dining.participants.join(', ') : 
+                                'None yet') +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            
+            return card;
         }
 
         function createActivityCard(activity) {
@@ -1072,6 +1190,24 @@
                     container.appendChild(activityCard);
                 });
             }
+            
+            // Add Hawaii dining options at the bottom
+            const hawaiiDining = (tripData.dining || []).filter(function(dining) {
+                return dining.island === 'Hawaii';
+            });
+            
+            if (hawaiiDining.length > 0) {
+                // Add separator
+                const separator = document.createElement('div');
+                separator.className = 'bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-4 mb-4 mt-6';
+                separator.innerHTML = '<h3 class="text-lg font-semibold text-gray-900 text-center">🍽️ Hawaii Dining</h3>';
+                container.appendChild(separator);
+                
+                hawaiiDining.forEach(function(dining) {
+                    const diningCard = createLocationDiningCard(dining);
+                    container.appendChild(diningCard);
+                });
+            }
         }
 
         function loadMaui() {
@@ -1104,6 +1240,24 @@
                 mauiActivities.forEach(function(activity) {
                     const activityCard = createLocationActivityCard(activity);
                     container.appendChild(activityCard);
+                });
+            }
+            
+            // Add Maui dining options at the bottom
+            const mauiDining = (tripData.dining || []).filter(function(dining) {
+                return dining.island === 'Maui';
+            });
+            
+            if (mauiDining.length > 0) {
+                // Add separator
+                const separator = document.createElement('div');
+                separator.className = 'bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-4 mb-4 mt-6';
+                separator.innerHTML = '<h3 class="text-lg font-semibold text-gray-900 text-center">🍽️ Maui Dining</h3>';
+                container.appendChild(separator);
+                
+                mauiDining.forEach(function(dining) {
+                    const diningCard = createLocationDiningCard(dining);
+                    container.appendChild(diningCard);
                 });
             }
         }
@@ -1413,6 +1567,14 @@
             addNewItem(currentFlightSubTab);
         }
 
+        function addNewExperience() {
+            if (currentExperienceSubTab === 'activities') {
+                addNewActivity();
+            } else if (currentExperienceSubTab === 'dining') {
+                addNewDining();
+            }
+        }
+
         function addNewActivity() {
             const maxId = tripData.activities.length > 0 ? Math.max.apply(Math, tripData.activities.map(function(item) { return item.id; })) : 0;
             const newId = maxId + 1;
@@ -1431,6 +1593,23 @@
             currentEditingItem = newItem;
             currentEditingType = 'activities';
             openEditModal(newItem, 'activities');
+        }
+
+        function addNewDining() {
+            const maxId = tripData.dining.length > 0 ? Math.max.apply(Math, tripData.dining.map(function(item) { return item.id; })) : 0;
+            const newId = maxId + 1;
+            const newItem = { 
+                id: newId, 
+                name: '', 
+                type: '', 
+                island: '', 
+                website: '', 
+                participants: [] 
+            };
+            
+            currentEditingItem = newItem;
+            currentEditingType = 'dining';
+            openEditModal(newItem, 'dining');
         }
 
         function addNewHawaiiItem() {
@@ -1593,6 +1772,8 @@
                     return generateAccommodationForm(item, type);
                 case 'activities':
                     return generateActivitiesForm(item);
+                case 'dining':
+                    return generateDiningForm(item);
                 default:
                     return '';
             }
@@ -1709,6 +1890,31 @@
                     '<input name="time" type="time" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" value="' + (item.time || '') + '">' +
                     '<input name="cost" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Cost (e.g., $50 per person)" value="' + (item.cost || '') + '">' +
                     '<input name="link" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Website/Booking Link" value="' + (item.link || '') + '">' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-2">Who\'s interested?</label>' +
+                        '<div class="grid grid-cols-2 gap-1">' +
+                            participantCheckboxes +
+                        '</div>' +
+                    '</div>';
+        }
+
+        function generateDiningForm(item) {
+            const participantCheckboxes = (tripData.individuals || []).map(function(person) {
+                return '<label class="flex items-center bg-purple-50 rounded-xl p-2">' +
+                    '<input type="checkbox" name="participants" value="' + person + '" ' + ((item.participants || []).includes(person) ? 'checked' : '') + ' ' +
+                    'class="mr-2 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">' +
+                    '<span class="text-sm text-gray-700">' + person + '</span>' +
+                '</label>';
+            }).join('');
+            
+            return '<input name="name" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Restaurant/Dining Name" value="' + (item.name || '') + '">' +
+                    '<input name="type" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Type (Breakfast, Lunch, Dinner, etc.)" value="' + (item.type || '') + '">' +
+                    '<select name="island" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90">' +
+                        '<option value="">Select Island</option>' +
+                        '<option value="Maui"' + (item.island === 'Maui' ? ' selected' : '') + '>Maui</option>' +
+                        '<option value="Hawaii"' + (item.island === 'Hawaii' ? ' selected' : '') + '>Big Island (Hawaii)</option>' +
+                    '</select>' +
+                    '<input name="website" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Website/Link" value="' + (item.website || '') + '">' +
                     '<div class="mb-3">' +
                         '<label class="block text-sm font-medium text-gray-700 mb-2">Who\'s interested?</label>' +
                         '<div class="grid grid-cols-2 gap-1">' +
