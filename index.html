@@ -472,6 +472,23 @@
     return result;
 }
 
+        async function saveItemToAPI(itemType, item, operation = 'update') {
+    const url = API_BASE_URL + 
+        '?action=saveData' +
+        '&itemType=' + encodeURIComponent(itemType) +
+        '&item=' + encodeURIComponent(JSON.stringify(item)) +
+        '&operation=' + encodeURIComponent(operation);
+    
+    const response = await fetch(url);
+    const result = await response.json();
+    
+    if (!result.success) {
+        throw new Error(result.error || 'Save failed');
+    }
+    
+    return result;
+}
+
         // UI Helper Functions
         function showLoading(show) {
             const indicator = document.getElementById('loadingIndicator');
@@ -933,6 +950,13 @@
                     (activity.time ? '<div class="text-sm text-gray-600">⏰ ' + formatTime(activity.time) + '</div>' : '') +
                     (activity.cost ? '<div class="text-sm text-green-600">💰 ' + activity.cost + '</div>' : '') +
                     '<div class="flex flex-wrap gap-2">' +
+                        (activity.location ? 
+                            '<button onclick="openInMaps(\'' + activity.location + '\')" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
+                                '<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>' +
+                                '</svg>' +
+                                'View on Map' +
+                            '</button>' : '') +
                         (activity.link ? 
                             '<a href="' + (activity.link.startsWith('http') ? activity.link : 'https://' + activity.link) + '" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
                                 '<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
@@ -941,18 +965,41 @@
                                 'Website' +
                             '</a>' : '') +
                     '</div>' +
-                   '<div class="border-t pt-3">' +
-    '<div class="text-sm font-medium text-gray-700 mb-2">Who\'s interested?</div>' +
-    (activity.participants && activity.participants.length > 0 ? 
-        '<div class="text-sm text-blue-600 bg-blue-50 rounded-xl p-3">' +
-            activity.participants.length + ' ' + (activity.participants.length === 1 ? 'person' : 'people') + ' interested: ' +
-            activity.participants.join(', ') +
-        '</div>' : 
-        '<div class="text-sm text-gray-500 bg-gray-50 rounded-xl p-3">No one interested yet</div>') +
-'</div>'
+                    '<div class="border-t pt-3">' +
+                        '<div class="text-sm font-medium text-gray-700 mb-2">Who\'s interested?</div>' +
+                        '<div class="grid grid-cols-2 gap-1" id="participants-' + activity.id + '">' +
+                            // Participant checkboxes will be added here
+                        '</div>' +
+                        (activity.participants && activity.participants.length > 0 ? 
+                            '<div class="mt-2 text-xs text-blue-600">' +
+                                activity.participants.length + ' ' + (activity.participants.length === 1 ? 'person' : 'people') + ' interested' +
+                            '</div>' : '') +
+                    '</div>' +
                 '</div>';
             
+            // Add participant checkboxes after creating the card
+            setTimeout(function() {
+                const participantsContainer = document.getElementById('participants-' + activity.id);
+                if (participantsContainer && tripData.individuals) {
+                    tripData.individuals.forEach(function(person) {
+                        const label = document.createElement('label');
+                        label.className = 'flex items-center bg-white/80 rounded-xl p-2';
+                        label.innerHTML = 
+                            '<input type="checkbox" ' + ((activity.participants || []).includes(person) ? 'checked' : '') + 
+                            ' onchange="toggleActivityParticipant(' + activity.id + ', \'' + person + '\')" ' +
+                            'class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">' +
+                            '<span class="text-sm text-gray-700">' + person + '</span>';
+                        participantsContainer.appendChild(label);
+                    });
+                }
+            }, 0);
+            
             return card;
+        }
+
+        function openInMaps(location) {
+            const encodedLocation = encodeURIComponent(location);
+            window.open('https://maps.google.com/maps?q=' + encodedLocation, '_blank');
         }
 
         function loadHawaii() {
@@ -1001,9 +1048,14 @@
                 displayType = '3 - 2 bedroom condo units (1 in Kincaid name, 1 in Schmit name, 1 in Geer name)';
             }
             
-            // Use database link
+            // Hard-coded links for specific properties
             let linkUrl = null;
-            if (accommodation.link) {
+            if (nameField === 'Club Wyndham Hawaiian Resort') {
+                linkUrl = 'https://www.vrbo.com/4073906';
+            } else if (nameField.includes('Hilton') || nameField.includes('Ka\'anapali') || nameField.includes('Maui')) {
+                // More flexible matching for Hilton Maui hotel
+                linkUrl = 'https://www.hilton.com/en/hotels/jhmkagv-hilton-vacation-club-kaanapali-beach-maui/';
+            } else if (accommodation.link) {
                 linkUrl = accommodation.link.startsWith('http') ? accommodation.link : 'https://' + accommodation.link;
             }
             
@@ -1487,6 +1539,7 @@
                     '<input name="time" type="time" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" value="' + (item.time || '') + '">' +
                     '<input name="cost" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Cost (e.g., $50 per person)" value="' + (item.cost || '') + '">' +
                     '<input name="link" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Website/Booking Link" value="' + (item.link || '') + '">' +
+                    '<input name="location" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Location (for maps)" value="' + (item.location || '') + '">' +
                     '<div class="mb-3">' +
                         '<label class="block text-sm font-medium text-gray-700 mb-2">Who\'s interested?</label>' +
                         '<div class="grid grid-cols-2 gap-1">' +
