@@ -256,7 +256,7 @@
 
 
         <!-- Plex Media Modal -->
-        <div id="plexModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden">
+        <div id="plexModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 hidden">
             <div class="bg-gradient-to-br from-gray-900 to-black rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-yellow-500/30">
                 <div class="p-6">
                     <div class="text-center mb-6">
@@ -1156,19 +1156,51 @@
                         return (activity.participants || []).includes(individual);
                     });
                     
-                    if (isInterestedCouple && activity.dates) {
-                        const activityTime = activity.time || 'TBD';
-                        coupleEvents.push({
-                            date: activity.dates,
-                            time: activity.time || '12:00', // Default to noon if no time for sorting
-                            title: activity.name,
-                            subtitle: activity.type + ' • ' + activity.place + (activity.time ? '' : ' • Time TBD'),
-                            icon: '🌺',
-                            color: 'bg-purple-500',
-                            type: 'activity',
-                            priority: 3,
-                            displayTime: activityTime
-                        });
+                    if (isInterestedCouple) {
+                        if (activity.dates) {
+                            // Has date/time - goes in chronological order
+                            const activityTime = activity.time || 'TBD';
+                            coupleEvents.push({
+                                date: activity.dates,
+                                time: activity.time || '12:00', // Default to noon if no time for sorting
+                                title: activity.name,
+                                subtitle: activity.type + ' • ' + activity.place + (activity.time ? '' : ' • Time TBD'),
+                                icon: '🌺',
+                                color: 'bg-purple-500',
+                                type: 'activity',
+                                priority: 3,
+                                displayTime: activityTime
+                            });
+                        } else {
+                            // No date - place at end of location stay
+                            if (activity.place === 'Hawaii') {
+                                // End of Hawaii stay (before inter-island flight)
+                                coupleEvents.push({
+                                    date: '2026-01-02', // Last day of Hawaii
+                                    time: '23:59', // End of day for sorting
+                                    title: activity.name + ' (Interest)',
+                                    subtitle: activity.type + ' • ' + activity.place + ' • TBD - Planning based on interest',
+                                    icon: '🌺',
+                                    color: 'bg-yellow-500',
+                                    type: 'activity-interest',
+                                    priority: 5,
+                                    displayTime: 'TBD'
+                                });
+                            } else if (activity.place === 'Maui') {
+                                // End of Maui stay (before departure)
+                                coupleEvents.push({
+                                    date: '2026-01-07', // Last day of Maui
+                                    time: '23:59', // End of day for sorting
+                                    title: activity.name + ' (Interest)',
+                                    subtitle: activity.type + ' • ' + activity.place + ' • TBD - Planning based on interest',
+                                    icon: '🌺',
+                                    color: 'bg-yellow-500',
+                                    type: 'activity-interest',
+                                    priority: 5,
+                                    displayTime: 'TBD'
+                                });
+                            }
+                        }
                     }
                 });
             }
@@ -1256,8 +1288,12 @@
                             '<h3 class="font-bold text-xl text-gray-900 mb-1">' + event.title + '</h3>' +
                             '<p class="text-cyan-600 font-medium mb-2">' + event.subtitle + '</p>' +
                             '<div class="flex items-center text-sm text-gray-600">' +
-                                '<span class="mr-4">📅 ' + formatDate(event.date) + '</span>' +
-                                '<span>⏰ ' + (event.displayTime || (event.time ? formatTime(event.time) : 'All Day')) + '</span>' +
+                                (event.type === 'activity-interest' ? 
+                                    '<span class="mr-4">📍 During ' + (event.subtitle.includes('Hawaii') ? 'Hawaii' : 'Maui') + ' stay</span>' +
+                                    '<span>⏰ ' + event.displayTime + '</span>' :
+                                    '<span class="mr-4">📅 ' + formatDate(event.date) + '</span>' +
+                                    '<span>⏰ ' + (event.displayTime || (event.time ? formatTime(event.time) : 'All Day')) + '</span>'
+                                ) +
                             '</div>' +
                         '</div>' +
                     '</div>';
