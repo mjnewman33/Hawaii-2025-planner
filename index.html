@@ -556,6 +556,24 @@
             return hour12 + ':' + parts[1] + ' ' + ampm;
         }
 
+        function getStatusIcon(status) {
+            switch (status) {
+                case 'Confirmed': return '🌺';
+                case 'Booked': return '✅';
+                case 'Pending':
+                default: return '🏖️';
+            }
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'Confirmed': return 'bg-emerald-500';
+                case 'Booked': return 'bg-green-600';
+                case 'Pending':
+                default: return 'bg-orange-500';
+            }
+        }
+
         // Tab management
         function setActiveTab(tab) {
             currentActiveTab = tab;
@@ -981,6 +999,8 @@
             card.className = 'bg-gradient-to-br from-purple-50 via-pink-50 to-rose-100 rounded-3xl border-2 border-purple-200/50 p-6 mb-4 shadow-xl';
             
             const islandColor = dining.island === 'Maui' ? 'bg-orange-500' : 'bg-green-500';
+            const statusIcon = getStatusIcon(dining.status);
+            const statusColor = getStatusColor(dining.status);
             
             card.innerHTML = 
                 '<!-- Title at top -->' +
@@ -993,6 +1013,9 @@
                             dining.island +
                         '</span>' +
                         '<div class="text-sm text-purple-600 font-medium">' + dining.type + '</div>' +
+                        '<span class="px-4 py-2 rounded-2xl text-sm font-bold text-white ' + statusColor + '">' +
+                            statusIcon + ' ' + (dining.status || 'Pending') +
+                        '</span>' +
                     '</div>' +
                     '<div class="flex items-center space-x-2">' +
                         '<button onclick="editItem(' + dining.id + ', \'dining\')" class="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-xl text-white transition-colors shadow-lg">' +
@@ -1010,6 +1033,7 @@
                 
                 '<!-- Dining details -->' +
                 '<div class="space-y-2">' +
+                    (dining.notes ? '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + dining.notes + '</div>' : '') +
                     '<div class="flex flex-wrap gap-2">' +
                         (dining.website ? 
                             '<a href="' + (dining.website.startsWith('http') ? dining.website : 'https://' + dining.website) + '" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
@@ -1033,66 +1057,74 @@
         }
 
         function createLocationDiningCard(dining) {
-    const card = document.createElement('div');
-    card.className = 'bg-gradient-to-br from-purple-50 via-pink-50 to-rose-100 rounded-3xl border-2 border-purple-200/50 p-6 mb-4 shadow-xl';
-    
-    const islandColor = dining.island === 'Maui' ? 'bg-orange-500' : 'bg-green-500';
-    
-    card.innerHTML = 
-        '<!-- Title at top -->' +
-        '<h3 class="font-bold text-xl text-gray-900 mb-3">' + dining.name + '</h3>' +
-        
-        '<!-- Status and buttons -->' +
-        '<div class="flex items-center justify-between mb-4">' +
-            '<div class="flex items-center space-x-3">' +
-                '<span class="px-3 py-1 rounded-full text-sm font-bold text-white ' + islandColor + '">' +
-                    dining.island +
-                '</span>' +
-                '<div class="text-sm text-purple-600 font-medium">' + dining.type + '</div>' +
-            '</div>' +
-            '<div class="flex items-center space-x-2">' +
-                '<button onclick="editItem(' + dining.id + ', \'dining\')" class="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-xl text-white transition-colors shadow-lg">' +
-                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>' +
-                    '</svg>' +
-                '</button>' +
-                '<button onclick="deleteItem(' + dining.id + ', \'dining\')" class="p-3 bg-gradient-to-br from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 rounded-xl text-white transition-colors shadow-lg">' +
-                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>' +
-                    '</svg>' +
-                '</button>' +
-            '</div>' +
-        '</div>' +
-        
-        '<!-- Dining details -->' +
-        '<div class="space-y-2">' +
-            '<div class="flex flex-wrap gap-2">' +
-                (dining.website ? 
-                    '<a href="' + (dining.website.startsWith('http') ? dining.website : 'https://' + dining.website) + '" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
-                        '<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>' +
-                        '</svg>' +
-                        'Website' +
-                    '</a>' : '') +
-            '</div>' +
-            '<div class="border-t pt-3">' +
-                '<div class="text-sm font-medium text-gray-700 mb-2">People interested:</div>' +
-                '<div class="text-sm text-purple-600">' +
-                    (dining.participants && dining.participants.length > 0 ? 
-                        dining.participants.join(', ') : 
-                        'None yet') +
+            const card = document.createElement('div');
+            card.className = 'bg-gradient-to-br from-purple-50 via-pink-50 to-rose-100 rounded-3xl border-2 border-purple-200/50 p-6 mb-4 shadow-xl';
+            
+            const islandColor = dining.island === 'Maui' ? 'bg-orange-500' : 'bg-green-500';
+            const statusIcon = getStatusIcon(dining.status);
+            const statusColor = getStatusColor(dining.status);
+            
+            card.innerHTML = 
+                '<!-- Title at top -->' +
+                '<h3 class="font-bold text-xl text-gray-900 mb-3">' + dining.name + '</h3>' +
+                
+                '<!-- Status and buttons -->' +
+                '<div class="flex items-center justify-between mb-4">' +
+                    '<div class="flex items-center space-x-3">' +
+                        '<span class="px-3 py-1 rounded-full text-sm font-bold text-white ' + islandColor + '">' +
+                            dining.island +
+                        '</span>' +
+                        '<div class="text-sm text-purple-600 font-medium">' + dining.type + '</div>' +
+                        '<span class="px-4 py-2 rounded-2xl text-sm font-bold text-white ' + statusColor + '">' +
+                            statusIcon + ' ' + (dining.status || 'Pending') +
+                        '</span>' +
+                    '</div>' +
+                    '<div class="flex items-center space-x-2">' +
+                        '<button onclick="editItem(' + dining.id + ', \'dining\')" class="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-xl text-white transition-colors shadow-lg">' +
+                            '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>' +
+                            '</svg>' +
+                        '</button>' +
+                        '<button onclick="deleteItem(' + dining.id + ', \'dining\')" class="p-3 bg-gradient-to-br from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 rounded-xl text-white transition-colors shadow-lg">' +
+                            '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>' +
+                            '</svg>' +
+                        '</button>' +
+                    '</div>' +
                 '</div>' +
-            '</div>' +
-        '</div>';
-    
-    return card;
-}
+                
+                '<!-- Dining details -->' +
+                '<div class="space-y-2">' +
+                    (dining.notes ? '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + dining.notes + '</div>' : '') +
+                    '<div class="flex flex-wrap gap-2">' +
+                        (dining.website ? 
+                            '<a href="' + (dining.website.startsWith('http') ? dining.website : 'https://' + dining.website) + '" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
+                                '<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>' +
+                                '</svg>' +
+                                'Website' +
+                            '</a>' : '') +
+                    '</div>' +
+                    '<div class="border-t pt-3">' +
+                        '<div class="text-sm font-medium text-gray-700 mb-2">People interested:</div>' +
+                        '<div class="text-sm text-purple-600">' +
+                            (dining.participants && dining.participants.length > 0 ? 
+                                dining.participants.join(', ') : 
+                                'None yet') +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            
+            return card;
+        }
         
         function createActivityCard(activity) {
             const card = document.createElement('div');
             card.className = 'bg-gradient-to-br from-orange-50 via-yellow-50 to-red-100 rounded-3xl border-2 border-orange-200/50 p-6 mb-4 shadow-xl';
             
             const placeColor = activity.place === 'Maui' ? 'bg-orange-500' : 'bg-green-500';
+            const statusIcon = getStatusIcon(activity.status);
+            const statusColor = getStatusColor(activity.status);
             
             card.innerHTML = 
                 '<!-- Title at top -->' +
@@ -1105,6 +1137,9 @@
                             activity.place +
                         '</span>' +
                         '<div class="text-sm text-blue-600 font-medium">' + activity.type + '</div>' +
+                        '<span class="px-4 py-2 rounded-2xl text-sm font-bold text-white ' + statusColor + '">' +
+                            statusIcon + ' ' + (activity.status || 'Pending') +
+                        '</span>' +
                     '</div>' +
                     '<div class="flex items-center space-x-2">' +
                         '<button onclick="editItem(' + activity.id + ', \'activities\')" class="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-xl text-white transition-colors shadow-lg">' +
@@ -1122,9 +1157,10 @@
                 
                 '<!-- Activity details -->' +
                 '<div class="space-y-2">' +
-                    (activity.dates ? '<div class="text-sm text-gray-600">📅 ' + formatDate(activity.dates) + '</div>' : '') +
-                    (activity.time ? '<div class="text-sm text-gray-600">⏰ ' + formatTime(activity.time) + '</div>' : '') +
-                    (activity.cost ? '<div class="text-sm text-green-600">💰 ' + activity.cost + '</div>' : '') +
+                    (activity.dates ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">📅 ' + formatDate(activity.dates) + '</div>' : '') +
+                    (activity.time ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">⏰ ' + formatTime(activity.time) + '</div>' : '') +
+                    (activity.cost ? '<div class="text-sm text-green-600 bg-white/80 rounded-xl p-3">💰 ' + activity.cost + '</div>' : '') +
+                    (activity.notes ? '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + activity.notes + '</div>' : '') +
                     '<div class="flex flex-wrap gap-2">' +
                         (activity.link ? 
                             '<a href="' + (activity.link.startsWith('http') ? activity.link : 'https://' + activity.link) + '" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
@@ -1152,12 +1188,8 @@
             card.className = 'bg-gradient-to-br from-orange-50 via-yellow-50 to-red-100 rounded-3xl border-2 border-orange-200/50 p-6 mb-4 shadow-xl';
             
             const placeColor = activity.place === 'Maui' ? 'bg-orange-500' : 'bg-green-500';
-            
-            // Determine status based on whether it has a date
-            const hasDate = activity.dates && activity.dates.trim() !== '';
-            const status = hasDate ? 'Confirmed' : 'Pending';
-            const statusIcon = hasDate ? '🌺' : '🏖️';
-            const statusColor = hasDate ? 'bg-emerald-500' : 'bg-orange-500';
+            const statusIcon = getStatusIcon(activity.status);
+            const statusColor = getStatusColor(activity.status);
             
             card.innerHTML = 
                 '<!-- Title at top -->' +
@@ -1171,7 +1203,7 @@
                         '</span>' +
                         '<div class="text-sm text-blue-600 font-medium">' + activity.type + '</div>' +
                         '<span class="px-4 py-2 rounded-2xl text-sm font-bold text-white ' + statusColor + '">' +
-                            statusIcon + ' ' + status +
+                            statusIcon + ' ' + (activity.status || 'Pending') +
                         '</span>' +
                     '</div>' +
                     '<div class="flex items-center space-x-2">' +
@@ -1190,9 +1222,10 @@
                 
                 '<!-- Activity details -->' +
                 '<div class="space-y-2">' +
-                    (activity.dates ? '<div class="text-sm text-gray-600">📅 ' + formatDate(activity.dates) + '</div>' : '') +
-                    (activity.time ? '<div class="text-sm text-gray-600">⏰ ' + formatTime(activity.time) + '</div>' : '') +
-                    (activity.cost ? '<div class="text-sm text-green-600">💰 ' + activity.cost + '</div>' : '') +
+                    (activity.dates ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">📅 ' + formatDate(activity.dates) + '</div>' : '') +
+                    (activity.time ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">⏰ ' + formatTime(activity.time) + '</div>' : '') +
+                    (activity.cost ? '<div class="text-sm text-green-600 bg-white/80 rounded-xl p-3">💰 ' + activity.cost + '</div>' : '') +
+                    (activity.notes ? '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + activity.notes + '</div>' : '') +
                     '<div class="flex flex-wrap gap-2">' +
                         (activity.link ? 
                             '<a href="' + (activity.link.startsWith('http') ? activity.link : 'https://' + activity.link) + '" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
@@ -1523,45 +1556,45 @@
             }
 
             // Add dining that this couple is interested in
-if (tripData.dining) {
-    tripData.dining.forEach(function(dining) {
-        // Check if any individual from this couple is interested
-        const isInterestedCouple = coupleIndividuals.some(function(individual) {
-            return (dining.participants || []).includes(individual);
-        });
-        
-        if (isInterestedCouple) {
-            // Place at end of location stay based on island
-            if (dining.island === 'Hawaii') {
-                // End of Hawaii stay (before inter-island flight)
-                coupleEvents.push({
-                    date: '2026-01-02', // Last day of Hawaii
-                    time: '23:59', // End of day for sorting
-                    title: dining.name + ' (Dining Interest)',
-                    subtitle: dining.type + ' • ' + dining.island + ' • TBD - Planning based on interest',
-                    icon: '🍽️',
-                    color: 'bg-purple-500',
-                    type: 'dining-interest',
-                    priority: 5,
-                    displayTime: 'TBD'
-                });
-            } else if (dining.island === 'Maui') {
-                // End of Maui stay (before departure)
-                coupleEvents.push({
-                    date: '2026-01-07', // Last day of Maui
-                    time: '23:59', // End of day for sorting
-                    title: dining.name + ' (Dining Interest)',
-                    subtitle: dining.type + ' • ' + dining.island + ' • TBD - Planning based on interest',
-                    icon: '🍽️',
-                    color: 'bg-purple-500',
-                    type: 'dining-interest',
-                    priority: 5,
-                    displayTime: 'TBD'
+            if (tripData.dining) {
+                tripData.dining.forEach(function(dining) {
+                    // Check if any individual from this couple is interested
+                    const isInterestedCouple = coupleIndividuals.some(function(individual) {
+                        return (dining.participants || []).includes(individual);
+                    });
+                    
+                    if (isInterestedCouple) {
+                        // Place at end of location stay based on island
+                        if (dining.island === 'Hawaii') {
+                            // End of Hawaii stay (before inter-island flight)
+                            coupleEvents.push({
+                                date: '2026-01-02', // Last day of Hawaii
+                                time: '23:59', // End of day for sorting
+                                title: dining.name + ' (Dining Interest)',
+                                subtitle: dining.type + ' • ' + dining.island + ' • TBD - Planning based on interest',
+                                icon: '🍽️',
+                                color: 'bg-purple-500',
+                                type: 'dining-interest',
+                                priority: 5,
+                                displayTime: 'TBD'
+                            });
+                        } else if (dining.island === 'Maui') {
+                            // End of Maui stay (before departure)
+                            coupleEvents.push({
+                                date: '2026-01-07', // Last day of Maui
+                                time: '23:59', // End of day for sorting
+                                title: dining.name + ' (Dining Interest)',
+                                subtitle: dining.type + ' • ' + dining.island + ' • TBD - Planning based on interest',
+                                icon: '🍽️',
+                                color: 'bg-purple-500',
+                                type: 'dining-interest',
+                                priority: 5,
+                                displayTime: 'TBD'
+                            });
+                        }
+                    }
                 });
             }
-        }
-    });
-}
             
             // Hard-coded room sharing for Club Wyndham Hawaiian Resort
             if (tripData.hawaii && tripData.hawaii.length > 0) {
@@ -1646,7 +1679,7 @@ if (tripData.dining) {
                             '<h3 class="font-bold text-xl text-gray-900 mb-1">' + event.title + '</h3>' +
                             '<p class="text-cyan-600 font-medium mb-2">' + event.subtitle + '</p>' +
                             '<div class="flex items-center text-sm text-gray-600">' +
-                                (event.type === 'activity-interest' ? 
+                                (event.type === 'activity-interest' || event.type === 'dining-interest' ? 
                                     '<span class="mr-4">📍 During ' + (event.subtitle.includes('Hawaii') ? 'Hawaii' : 'Maui') + ' stay</span>' +
                                     '<span>⏰ ' + event.displayTime + '</span>' :
                                     '<span class="mr-4">📅 ' + formatDate(event.date) + '</span>' +
@@ -1685,7 +1718,9 @@ if (tripData.dining) {
                 time: '', 
                 cost: '', 
                 link: '', 
-                participants: [] 
+                participants: [],
+                status: 'Pending',
+                notes: ''
             };
             
             currentEditingItem = newItem;
@@ -1702,7 +1737,9 @@ if (tripData.dining) {
                 type: '', 
                 island: '', 
                 website: '', 
-                participants: [] 
+                participants: [],
+                status: 'Pending',
+                notes: ''
             };
             
             currentEditingItem = newItem;
@@ -1882,22 +1919,46 @@ if (tripData.dining) {
                 return '<option value="' + person + '"' + (item.names === person ? ' selected' : '') + '>' + person + '</option>';
             }).join('');
             
-            return '<select name="names" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90">' +
-                        '<option value="">Select Couple</option>' +
-                        peopleOptions +
-                    '</select>' +
-                    '<input name="date" type="date" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" value="' + (item.date || '') + '">' +
-                    '<input name="airline" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Airline" value="' + (item.airline || '') + '">' +
-                    '<input name="flightNumber" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Flight Number" value="' + (item.flightNumber || '') + '">' +
-                    '<input name="arrivalTime" type="time" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" value="' + (item.arrivalTime || '') + '">' +
-                    '<input name="destination" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Arrival Destination/Airport (e.g., Kona/KOA)" value="' + (item.destination || '') + '">' +
-                    '<select name="status" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90">' +
-                        '<option value="">Select Status</option>' +
-                        '<option value="Confirmed"' + (item.status === 'Confirmed' ? ' selected' : '') + '>Confirmed</option>' +
-                        '<option value="Pending"' + (item.status === 'Pending' ? ' selected' : '') + '>Pending</option>' +
-                        '<option value="Cancelled"' + (item.status === 'Cancelled' ? ' selected' : '') + '>Cancelled</option>' +
-                    '</select>' +
-                    '<input name="payment" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Payment (e.g., OYO)" value="' + (item.payment || '') + '">';
+            return '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Couple</label>' +
+                        '<select name="names" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90">' +
+                            '<option value="">Select Couple</option>' +
+                            peopleOptions +
+                        '</select>' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Date</label>' +
+                        '<input name="date" type="date" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.date || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Airline</label>' +
+                        '<input name="airline" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.airline || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Flight Number</label>' +
+                        '<input name="flightNumber" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.flightNumber || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Arrival Time</label>' +
+                        '<input name="arrivalTime" type="time" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.arrivalTime || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Arrival Destination/Airport</label>' +
+                        '<input name="destination" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.destination || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Status</label>' +
+                        '<select name="status" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90">' +
+                            '<option value="">Select Status</option>' +
+                            '<option value="Confirmed"' + (item.status === 'Confirmed' ? ' selected' : '') + '>Confirmed</option>' +
+                            '<option value="Pending"' + (item.status === 'Pending' ? ' selected' : '') + '>Pending</option>' +
+                            '<option value="Cancelled"' + (item.status === 'Cancelled' ? ' selected' : '') + '>Cancelled</option>' +
+                        '</select>' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Payment</label>' +
+                        '<input name="payment" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.payment || '') + '">' +
+                    '</div>';
         }
 
         function generateDeparturesForm(item) {
@@ -1905,21 +1966,42 @@ if (tripData.dining) {
                 return '<option value="' + person + '"' + (item.names === person ? ' selected' : '') + '>' + person + '</option>';
             }).join('');
             
-            return '<select name="names" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90">' +
-                        '<option value="">Select Couple</option>' +
-                        peopleOptions +
-                    '</select>' +
-                    '<input name="date" type="date" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" value="' + (item.date || '') + '">' +
-                    '<input name="airline" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Airline" value="' + (item.airline || '') + '">' +
-                    '<input name="flightNumber" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Flight Number" value="' + (item.flightNumber || '') + '">' +
-                    '<input name="departureTime" type="time" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" value="' + (item.departureTime || '') + '">' +
-                    '<select name="status" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90">' +
-                        '<option value="">Select Status</option>' +
-                        '<option value="Confirmed"' + (item.status === 'Confirmed' ? ' selected' : '') + '>Confirmed</option>' +
-                        '<option value="Pending"' + (item.status === 'Pending' ? ' selected' : '') + '>Pending</option>' +
-                        '<option value="Cancelled"' + (item.status === 'Cancelled' ? ' selected' : '') + '>Cancelled</option>' +
-                    '</select>' +
-                    '<input name="payment" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Payment (e.g., OYO)" value="' + (item.payment || '') + '">';
+            return '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Couple</label>' +
+                        '<select name="names" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90">' +
+                            '<option value="">Select Couple</option>' +
+                            peopleOptions +
+                        '</select>' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Date</label>' +
+                        '<input name="date" type="date" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.date || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Airline</label>' +
+                        '<input name="airline" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.airline || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Flight Number</label>' +
+                        '<input name="flightNumber" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.flightNumber || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Departure Time</label>' +
+                        '<input name="departureTime" type="time" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.departureTime || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Status</label>' +
+                        '<select name="status" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90">' +
+                            '<option value="">Select Status</option>' +
+                            '<option value="Confirmed"' + (item.status === 'Confirmed' ? ' selected' : '') + '>Confirmed</option>' +
+                            '<option value="Pending"' + (item.status === 'Pending' ? ' selected' : '') + '>Pending</option>' +
+                            '<option value="Cancelled"' + (item.status === 'Cancelled' ? ' selected' : '') + '>Cancelled</option>' +
+                        '</select>' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Payment</label>' +
+                        '<input name="payment" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.payment || '') + '">' +
+                    '</div>';
         }
 
         function generateInterIslandForm(item) {
@@ -1927,24 +2009,54 @@ if (tripData.dining) {
                 return '<option value="' + person + '"' + (item.names === person ? ' selected' : '') + '>' + person + '</option>';
             }).join('');
             
-            return '<select name="names" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90">' +
-                        '<option value="">Select Couple</option>' +
-                        peopleOptions +
-                    '</select>' +
-                    '<input name="date" type="date" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" value="' + (item.date || '') + '">' +
-                    '<input name="airline" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Airline" value="' + (item.airline || '') + '">' +
-                    '<input name="flightNumber" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Flight Number" value="' + (item.flightNumber || '') + '">' +
-                    '<input name="departure" type="time" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" value="' + (item.departure || '') + '">' +
-                    '<input name="departureAirport" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Departure Airport (e.g., KOA)" value="' + (item.departureAirport || '') + '">' +
-                    '<input name="arrivalTime" type="time" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" value="' + (item.arrivalTime || '') + '">' +
-                    '<input name="arrivalAirport" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Arrival Airport (e.g., OGG)" value="' + (item.arrivalAirport || '') + '">' +
-                    '<select name="status" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90">' +
-                        '<option value="">Select Status</option>' +
-                        '<option value="Confirmed"' + (item.status === 'Confirmed' ? ' selected' : '') + '>Confirmed</option>' +
-                        '<option value="Pending"' + (item.status === 'Pending' ? ' selected' : '') + '>Pending</option>' +
-                        '<option value="Cancelled"' + (item.status === 'Cancelled' ? ' selected' : '') + '>Cancelled</option>' +
-                    '</select>' +
-                    '<input name="payment" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Payment (e.g., OYO)" value="' + (item.payment || '') + '">';
+            return '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Couple</label>' +
+                        '<select name="names" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90">' +
+                            '<option value="">Select Couple</option>' +
+                            peopleOptions +
+                        '</select>' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Date</label>' +
+                        '<input name="date" type="date" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.date || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Airline</label>' +
+                        '<input name="airline" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.airline || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Flight Number</label>' +
+                        '<input name="flightNumber" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.flightNumber || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Departure Time</label>' +
+                        '<input name="departure" type="time" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.departure || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Departure Airport</label>' +
+                        '<input name="departureAirport" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.departureAirport || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Arrival Time</label>' +
+                        '<input name="arrivalTime" type="time" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.arrivalTime || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Arrival Airport</label>' +
+                        '<input name="arrivalAirport" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.arrivalAirport || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Status</label>' +
+                        '<select name="status" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90">' +
+                            '<option value="">Select Status</option>' +
+                            '<option value="Confirmed"' + (item.status === 'Confirmed' ? ' selected' : '') + '>Confirmed</option>' +
+                            '<option value="Pending"' + (item.status === 'Pending' ? ' selected' : '') + '>Pending</option>' +
+                            '<option value="Cancelled"' + (item.status === 'Cancelled' ? ' selected' : '') + '>Cancelled</option>' +
+                        '</select>' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Payment</label>' +
+                        '<input name="payment" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.payment || '') + '">' +
+                    '</div>';
         }
 
         function generateAccommodationForm(item, type) {
@@ -1952,20 +2064,47 @@ if (tripData.dining) {
             const nameLabel = type === 'hawaii' ? 'Name' : 'Item';
             const currentName = type === 'hawaii' ? (item.name || '') : (item.item || '');
             
-            return '<input name="' + nameField + '" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="' + nameLabel + '" value="' + currentName + '">' +
-                    '<input name="type" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Type (e.g., Accommodations, Car Rental)" value="' + (item.type || '') + '">' +
-                    '<input name="dates" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Date(s) (e.g., 12/29/25 - 1/3/26)" value="' + (item.dates || '') + '">' +
-                    '<textarea name="times" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Time(s) (e.g., Check-In: 4:00 PM)" rows="2">' + (item.times || '') + '</textarea>' +
-                    '<select name="status" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90">' +
-                        '<option value="">Select Status</option>' +
-                        '<option value="Confirmed"' + (item.status === 'Confirmed' ? ' selected' : '') + '>Confirmed</option>' +
-                        '<option value="Pending"' + (item.status === 'Pending' ? ' selected' : '') + '>Pending</option>' +
-                        '<option value="Cancelled"' + (item.status === 'Cancelled' ? ' selected' : '') + '>Cancelled</option>' +
-                    '</select>' +
-                    '<input name="payment" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Payment" value="' + (item.payment || '') + '">' +
-                    '<input name="confirmation" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Confirmation/Reservation Number" value="' + (item.confirmation || '') + '">' +
-                    '<textarea name="additionalInfo" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Additional Info" rows="2">' + (item.additionalInfo || '') + '</textarea>' +
-                    '<input name="link" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Website/Link" value="' + (item.link || '') + '">';
+            return '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">' + nameLabel + '</label>' +
+                        '<input name="' + nameField + '" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + currentName + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Type</label>' +
+                        '<input name="type" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.type || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Date(s)</label>' +
+                        '<input name="dates" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.dates || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Time(s)</label>' +
+                        '<textarea name="times" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" rows="2">' + (item.times || '') + '</textarea>' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Status</label>' +
+                        '<select name="status" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90">' +
+                            '<option value="">Select Status</option>' +
+                            '<option value="Confirmed"' + (item.status === 'Confirmed' ? ' selected' : '') + '>Confirmed</option>' +
+                            '<option value="Pending"' + (item.status === 'Pending' ? ' selected' : '') + '>Pending</option>' +
+                            '<option value="Cancelled"' + (item.status === 'Cancelled' ? ' selected' : '') + '>Cancelled</option>' +
+                        '</select>' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Payment</label>' +
+                        '<input name="payment" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.payment || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Confirmation/Reservation Number</label>' +
+                        '<input name="confirmation" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.confirmation || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Additional Info</label>' +
+                        '<textarea name="additionalInfo" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" rows="2">' + (item.additionalInfo || '') + '</textarea>' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Website/Link</label>' +
+                        '<input name="link" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.link || '') + '">' +
+                    '</div>';
         }
 
         function generateActivitiesForm(item) {
@@ -1977,17 +2116,51 @@ if (tripData.dining) {
                 '</label>';
             }).join('');
             
-            return '<input name="name" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Activity Name" value="' + (item.name || '') + '">' +
-                    '<input name="type" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Type (Tour, Self-Guided, etc.)" value="' + (item.type || '') + '">' +
-                    '<select name="place" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90">' +
-                        '<option value="">Select Location</option>' +
-                        '<option value="Maui"' + (item.place === 'Maui' ? ' selected' : '') + '>Maui</option>' +
-                        '<option value="Hawaii"' + (item.place === 'Hawaii' ? ' selected' : '') + '>Big Island (Hawaii)</option>' +
-                    '</select>' +
-                    '<input name="dates" type="date" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" value="' + (item.dates || '') + '">' +
-                    '<input name="time" type="time" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" value="' + (item.time || '') + '">' +
-                    '<input name="cost" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Cost (e.g., $50 per person)" value="' + (item.cost || '') + '">' +
-                    '<input name="link" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Website/Booking Link" value="' + (item.link || '') + '">' +
+            return '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Activity Name</label>' +
+                        '<input name="name" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.name || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Type</label>' +
+                        '<input name="type" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.type || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Location</label>' +
+                        '<select name="place" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90">' +
+                            '<option value="">Select Location</option>' +
+                            '<option value="Maui"' + (item.place === 'Maui' ? ' selected' : '') + '>Maui</option>' +
+                            '<option value="Hawaii"' + (item.place === 'Hawaii' ? ' selected' : '') + '>Big Island (Hawaii)</option>' +
+                        '</select>' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Scheduled Date</label>' +
+                        '<input name="dates" type="date" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.dates || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Time</label>' +
+                        '<input name="time" type="time" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.time || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Status</label>' +
+                        '<select name="status" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90">' +
+                            '<option value="">Select Status</option>' +
+                            '<option value="Pending"' + (item.status === 'Pending' ? ' selected' : '') + '>Pending</option>' +
+                            '<option value="Confirmed"' + (item.status === 'Confirmed' ? ' selected' : '') + '>Confirmed</option>' +
+                            '<option value="Booked"' + (item.status === 'Booked' ? ' selected' : '') + '>Booked</option>' +
+                        '</select>' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Cost</label>' +
+                        '<input name="cost" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.cost || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Website/Booking Link</label>' +
+                        '<input name="link" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.link || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>' +
+                        '<textarea name="notes" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" rows="3" placeholder="Available dates, special instructions, etc.">' + (item.notes || '') + '</textarea>' +
+                    '</div>' +
                     '<div class="mb-3">' +
                         '<label class="block text-sm font-medium text-gray-700 mb-2">Who\'s interested?</label>' +
                         '<div class="grid grid-cols-2 gap-1">' +
@@ -2005,14 +2178,39 @@ if (tripData.dining) {
                 '</label>';
             }).join('');
             
-            return '<input name="name" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Restaurant/Dining Name" value="' + (item.name || '') + '">' +
-                    '<input name="type" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Type (Breakfast, Lunch, Dinner, etc.)" value="' + (item.type || '') + '">' +
-                    '<select name="island" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90">' +
-                        '<option value="">Select Island</option>' +
-                        '<option value="Maui"' + (item.island === 'Maui' ? ' selected' : '') + '>Maui</option>' +
-                        '<option value="Hawaii"' + (item.island === 'Hawaii' ? ' selected' : '') + '>Big Island (Hawaii)</option>' +
-                    '</select>' +
-                    '<input name="website" class="w-full p-3 border-2 border-cyan-200 rounded-2xl mb-3 bg-white/90" placeholder="Website/Link" value="' + (item.website || '') + '">' +
+            return '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Restaurant/Dining Name</label>' +
+                        '<input name="name" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.name || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Type</label>' +
+                        '<input name="type" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.type || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Island</label>' +
+                        '<select name="island" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90">' +
+                            '<option value="">Select Island</option>' +
+                            '<option value="Maui"' + (item.island === 'Maui' ? ' selected' : '') + '>Maui</option>' +
+                            '<option value="Hawaii"' + (item.island === 'Hawaii' ? ' selected' : '') + '>Big Island (Hawaii)</option>' +
+                        '</select>' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Status</label>' +
+                        '<select name="status" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90">' +
+                            '<option value="">Select Status</option>' +
+                            '<option value="Pending"' + (item.status === 'Pending' ? ' selected' : '') + '>Pending</option>' +
+                            '<option value="Confirmed"' + (item.status === 'Confirmed' ? ' selected' : '') + '>Confirmed</option>' +
+                            '<option value="Booked"' + (item.status === 'Booked' ? ' selected' : '') + '>Booked</option>' +
+                        '</select>' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Website/Link</label>' +
+                        '<input name="website" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.website || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>' +
+                        '<textarea name="notes" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" rows="3" placeholder="Hours, reservation notes, special offers, etc.">' + (item.notes || '') + '</textarea>' +
+                    '</div>' +
                     '<div class="mb-3">' +
                         '<label class="block text-sm font-medium text-gray-700 mb-2">Who\'s interested?</label>' +
                         '<div class="grid grid-cols-2 gap-1">' +
