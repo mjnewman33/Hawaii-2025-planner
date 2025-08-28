@@ -30,6 +30,23 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+		
+		 #weatherContainer {
+            position: relative;
+            display: flex;
+            justify-content: space-around;
+            padding: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1173&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: white;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-cyan-100 via-blue-50 via-teal-50 to-orange-100 relative">
@@ -108,6 +125,9 @@
 <div id="mainContent">
     <!-- Dashboard View -->
     <div id="dashboardView" class="space-y-6">
+	
+	<!-- ADD WEATHER WIDGET HERE -->
+                <div id="weatherContainer" class="mb-6">Loading weather...</div>
 
         <!-- General Timeline -->
         <div class="bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-100 rounded-3xl border-2 border-emerald-200/50 p-6 shadow-xl">
@@ -2491,6 +2511,7 @@ function toggleSchedule() {
                 setActiveTab('dashboard');
                 console.log('Hawaii Trip Planner loaded successfully!');
 				setupJillAlert();
+				fetchWeather();
             }).catch(function(error) {
                 console.error('Failed to initialize app:', error);
                 setActiveTab('dashboard');
@@ -2506,6 +2527,72 @@ function setupJillAlert() {
         }
     });
 }
+
+// ADD ALL THE WEATHER FUNCTIONS HERE
+        function getWeather(precipitation) {
+            if (precipitation > 10) return { icon: '🌧️', text: 'Rainy' };
+            if (precipitation > 1) return { icon: '🌦️', text: 'Cloudy' };
+            return { icon: '☀️', text: 'Sunny' };
+        }
+
+        function cToF(c) {
+            return Math.round(c * 9 / 5 + 32);
+        }
+
+        async function fetchWeather() {
+            const container = document.getElementById('weatherContainer');
+            const transitionDate = new Date('2026-01-03');
+            const today = new Date();
+            const forecastData = [];
+
+            for (let i = 0; i < 3; i++) {
+                const dayDate = new Date(today);
+                dayDate.setDate(today.getDate() + i);
+
+                const isMaui = dayDate >= transitionDate;
+                const locationName = isMaui ? 'Maui' : 'Hawaii';
+                const location = isMaui ? { lat: 20.798, lon: -156.331 } : { lat: 19.705, lon: -155.090 };
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Pacific/Honolulu`;
+
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    const dayData = data.daily;
+
+                    const dayLabel = i === 0 ? 'Today' : (i === 1 ? 'Tomorrow' : dayDate.toLocaleDateString('en-US', { weekday: 'short' }));
+                    const weather = getWeather(dayData.precipitation_sum[i]);
+
+                    forecastData.push({
+                        dayName: dayLabel,
+                        location: locationName,
+                        icon: weather.icon,
+                        condition: weather.text,
+                        temp: `${cToF(dayData.temperature_2m_max[i])}° / ${cToF(dayData.temperature_2m_min[i])}°`
+                    });
+                } catch (err) {
+                    console.error('Weather fetch failed:', err);
+                    forecastData.push({
+                        dayName: i === 0 ? 'Today' : (i === 1 ? 'Tomorrow' : dayDate.toLocaleDateString('en-US', { weekday: 'short' })),
+                        location: isMaui ? 'Maui' : 'Hawaii',
+                        icon: '❓',
+                        condition: '--',
+                        temp: '--'
+                    });
+                }
+            }
+
+            container.innerHTML = forecastData.map(f => `
+                <div class="weather-day">
+                    <div style="font-weight: bold;">${f.dayName}</div>
+                    <div class="weather-location">${f.location}</div>
+                    <div class="weather-info">
+                        <span class="weather-emoji">${f.icon}</span>
+                        <span>${f.condition}</span>
+                    </div>
+                    <div>${f.temp}</div>
+                </div>
+            `).join('');
+        }
 
 // Register service worker
 if ('serviceWorker' in navigator) {
