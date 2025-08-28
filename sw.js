@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hawaii-trip-v4';  // bumped version
+const CACHE_NAME = 'hawaii-trip-v5';  // bumped version
 const urlsToCache = [
   '/',
   '/index.html'
@@ -45,3 +45,4 @@ self.addEventListener('message', event => {
     self.skipWaiting();
   }
 });
+
