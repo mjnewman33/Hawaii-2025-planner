@@ -1625,8 +1625,13 @@
                         type: 'accommodation',
                         priority: 4
                     });
-const countdownTarget = arrival.date + ' ' + arrival.arrivalTime;
-    startCountdown(countdownTarget);
+            // Create Date object from Hawaii arrival
+            const arrivalDate = new Date(arrival.date + ' ' + arrival.arrivalTime);
+
+           // Add 6 hours (5 for time difference + 1 for daylight saving rollback)
+           arrivalDate.setHours(arrivalDate.getHours() + 6);
+
+           startCountdown(arrivalDate);
                 }
             }
             
