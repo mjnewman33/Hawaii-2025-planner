@@ -105,57 +105,88 @@
             </div>
 
             <!-- Main Content Views -->
-            <div id="mainContent">
-                <!-- Dashboard View -->
-                <div id="dashboardView" class="space-y-6">
-                    <div class="bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-100 rounded-3xl border-2 border-cyan-200/50 p-6 shadow-xl">
-                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Arrival Schedule</h2>
-                        <div id="arrivalSchedule" class="space-y-3">
-                            <!-- Dynamic content -->
-                        </div>
-                    </div>
+<div id="mainContent">
+    <!-- Dashboard View -->
+    <div id="dashboardView" class="space-y-6">
 
-                    <div class="bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-100 rounded-3xl border-2 border-emerald-200/50 p-6 shadow-xl">
-                        <h2 class="text-lg font-semibold text-gray-900 mb-4">General Timeline</h2>
-                        <div class="space-y-4">
-                            <div class="flex items-center">
-                                <div class="w-3 h-3 bg-blue-500 rounded-full mr-4"></div>
-                                <div>
-                                    <div class="font-medium">Dec 27-29: Arrive in Hawaii</div>
-                                    <div class="text-sm text-gray-600">Big Island (Kona) - different couples, different dates</div>
-                                </div>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-3 h-3 bg-green-500 rounded-full mr-4"></div>
-                                <div>
-                                    <div class="font-medium">Dec 29 - Jan 3: Big Island</div>
-                                    <div class="text-sm text-gray-600">Club Wyndham Hawaiian Resort</div>
-                                </div>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-3 h-3 bg-orange-500 rounded-full mr-4"></div>
-                                <div>
-                                    <div class="font-medium">Jan 3: Fly to Maui</div>
-                                    <div class="text-sm text-gray-600">Southwest WN3103 (all couples)</div>
-                                </div>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-3 h-3 bg-purple-500 rounded-full mr-4"></div>
-                                <div>
-                                    <div class="font-medium">Jan 3 - Jan 8: Maui</div>
-                                    <div class="text-sm text-gray-600">Hilton Vacation Club Ka'anapali Beach Maui</div>
-                                </div>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-3 h-3 bg-red-500 rounded-full mr-4"></div>
-                                <div>
-                                    <div class="font-medium">Jan 8: Departure</div>
-                                    <div class="text-sm text-gray-600">Fly home</div>
-                                </div>
-                            </div>
-                        </div>
+        <!-- General Timeline -->
+        <div class="bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-100 rounded-3xl border-2 border-emerald-200/50 p-6 shadow-xl">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">General Timeline</h2>
+            <div class="space-y-4">
+                <div class="flex items-center">
+                    <div class="w-3 h-3 bg-blue-500 rounded-full mr-4"></div>
+                    <div>
+                        <div class="font-medium">Dec 27-29: Arrive in Hawaii</div>
+                        <div class="text-sm text-gray-600">Big Island (Kona) - different couples, different dates</div>
                     </div>
                 </div>
+                <div class="flex items-center">
+                    <div class="w-3 h-3 bg-green-500 rounded-full mr-4"></div>
+                    <div>
+                        <div class="font-medium">Dec 29 - Jan 3: Big Island</div>
+                        <div class="text-sm text-gray-600">Club Wyndham Hawaiian Resort</div>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-3 h-3 bg-orange-500 rounded-full mr-4"></div>
+                    <div>
+                        <div class="font-medium">Jan 3: Fly to Maui</div>
+                        <div class="text-sm text-gray-600">Southwest WN3103 (all couples)</div>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-3 h-3 bg-purple-500 rounded-full mr-4"></div>
+                    <div>
+                        <div class="font-medium">Jan 3 - Jan 8: Maui</div>
+                        <div class="text-sm text-gray-600">Hilton Vacation Club Ka'anapali Beach Maui</div>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-3 h-3 bg-red-500 rounded-full mr-4"></div>
+                    <div>
+                        <div class="font-medium">Jan 8: Departure</div>
+                        <div class="text-sm text-gray-600">Fly home</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toggle Button -->
+        <div class="mt-1">
+            <button id="toggleButton"
+                    onclick="toggleSchedule()" 
+                    class="w-full px-4 py-2 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 transition">
+                Show Arrival Schedule
+            </button>
+        </div>
+
+        <!-- Arrival Schedule (hidden by default) -->
+        <div id="arrivalContainer" class="hidden mt-6">
+            <div class="bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-100 rounded-3xl border-2 border-cyan-200/50 p-6 shadow-xl">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Arrival Schedule</h2>
+                <div id="arrivalSchedule" class="space-y-3">
+                    <!-- Dynamic content (loadDashboard fills this) -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleSchedule() {
+    const container = document.getElementById("arrivalContainer");
+    const button = document.getElementById("toggleButton");
+
+    container.classList.toggle("hidden");
+
+    if (container.classList.contains("hidden")) {
+        button.textContent = "Show Arrival Schedule";
+    } else {
+        button.textContent = "Hide Arrival Schedule";
+    }
+}
+</script>
+
 
                 <!-- Calendar View -->
                 <div id="calendarView" class="space-y-4 hidden">
@@ -670,31 +701,20 @@
         }
 
         function setSelectedPerson(person) {
-    currentSelectedPerson = person;
-    document.getElementById('personSelector').value = person;
-
-    if (person === 'all') {
-        document.getElementById('individualItinerary').classList.add('hidden');
-        document.getElementById('mainContent').classList.remove('hidden');
-    } else {
-        // Clear any existing countdown first
-        const timerEl = document.getElementById("countdownTimer");
-        if (timerEl) {
-            if (timerEl._interval) {
-                clearInterval(timerEl._interval);
-                timerEl._interval = null;
+            currentSelectedPerson = person;
+            document.getElementById('personSelector').value = person;
+            
+            if (person === 'all') {
+                document.getElementById('individualItinerary').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+            } else {
+                document.getElementById('individualItinerary').classList.remove('hidden');
+                document.getElementById('mainContent').classList.add('hidden');
+                document.getElementById('itineraryTitle').textContent = person + ' Itinerary';
+                document.getElementById('itineraryCouple').textContent = person;
+                loadIndividualItinerary(person);
             }
-            timerEl.textContent = '';
         }
-
-        document.getElementById('individualItinerary').classList.remove('hidden');
-        document.getElementById('mainContent').classList.add('hidden');
-        document.getElementById('itineraryTitle').textContent = person + ' Itinerary';
-        document.getElementById('itineraryCouple').textContent = person;
-
-        loadIndividualItinerary(person);
-    }
-}
 
         function setFlightSubTab(subTab) {
             currentFlightSubTab = subTab;
@@ -1762,6 +1782,13 @@
                     // Start countdown timer using the earliest arrival (not just first found)
                     if (earliestArrival) {
                         startCountdown(earliestArrival.date, earliestArrival.arrivalTime);
+                    } else {
+                        // Clear any existing timer if this couple has no arrival data
+                        const timerEl = document.getElementById("countdownTimer");
+                        if (timerEl && timerEl._interval) {
+                            clearInterval(timerEl._interval);
+                            timerEl.textContent = '';
+                        }
                     }
                 }
             }
@@ -2463,11 +2490,22 @@
             loadTripData().then(function() {
                 setActiveTab('dashboard');
                 console.log('Hawaii Trip Planner loaded successfully!');
+				setupJillAlert();
             }).catch(function(error) {
                 console.error('Failed to initialize app:', error);
                 setActiveTab('dashboard');
             });
         });
+		// Jill alert function
+function setupJillAlert() {
+    document.addEventListener('change', function(e) {
+        if (e.target.name === 'participants' && e.target.value === 'Jill' && e.target.checked) {
+            console.log('Playing Jill sound');
+            const audio = new Audio('audio/heyjill.mp3');
+            audio.play().catch(err => console.error('Audio play failed:', err));
+        }
+    });
+}
     </script>
 </body>
 </html>
