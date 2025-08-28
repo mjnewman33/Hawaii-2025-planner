@@ -35,8 +35,9 @@
             position: relative;
             display: flex;
             justify-content: space-around;
-            padding: 16px;
-            width: 100%;
+            padding: 12px;
+            max-width: calc(100% - 32px);
+			margin: 0 auto; 
             box-sizing: border-box;
             border-radius: 20px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
@@ -46,7 +47,23 @@
             background-repeat: no-repeat;
             color: white;
             font-size: 18px;
-        }
+			overflow: hidden; /* needed for pseudo-element */
+}
+
+/* Overlay to dull the background */
+#weatherContainer::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.3); /* adjust alpha 0.1–0.5 for more/less dull */
+    z-index: 0;
+}
+
+/* Keep content above the overlay */
+#weatherContainer > * {
+    position: relative;
+    z-index: 1;
+}
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-cyan-100 via-blue-50 via-teal-50 to-orange-100 relative">
