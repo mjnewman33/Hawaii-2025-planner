@@ -2506,6 +2506,49 @@ function setupJillAlert() {
         }
     });
 }
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+}
+
+// Pull-to-refresh with 2-second delay
+let pullStartTime = null;
+let isPulling = false;
+
+document.addEventListener('touchstart', (e) => {
+    if (window.scrollY === 0) {
+        pullStartTime = Date.now();
+        isPulling = true;
+    }
+}, { passive: true });
+
+document.addEventListener('touchend', async () => {
+    if (isPulling && pullStartTime && (Date.now() - pullStartTime) >= 2000) {
+        console.log('2-second pull detected, refreshing...');
+        
+        // Update service worker
+        if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (const reg of registrations) {
+                await reg.update();
+            }
+        }
+        
+        // Refresh data using your existing function
+        await loadTripData();
+    }
+    
+    isPulling = false;
+    pullStartTime = null;
+});
+
+document.addEventListener('scroll', () => {
+    if (window.scrollY > 0) {
+        isPulling = false;
+        pullStartTime = null;
+    }
+});
     </script>
 </body>
 </html>
