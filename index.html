@@ -1172,15 +1172,18 @@ function toggleSchedule() {
                 
                 '<!-- Status and buttons -->' +
                 '<div class="flex items-center justify-between mb-4">' +
-                    '<div class="flex items-center space-x-3">' +
-                        '<span class="px-3 py-1 rounded-full text-sm font-bold text-white ' + islandColor + '">' +
-                            dining.island +
-                        '</span>' +
-                        '<div class="text-sm text-purple-600 font-medium">' + dining.type + '</div>' +
-                        '<span class="px-4 py-2 rounded-2xl text-sm font-bold text-white ' + statusColor + '">' +
-                            statusIcon + ' ' + (dining.status || 'Pending') +
-                        '</span>' +
-                    '</div>' +
+                    '<div>' +
+    '<div class="flex items-center space-x-3 mb-1">' +
+        '<span class="px-3 py-1 rounded-full text-sm font-bold text-white ' + islandColor + '">' +
+            dining.island +
+        '</span>' +
+        '<span class="px-4 py-2 rounded-2xl text-sm font-bold text-white ' + statusColor + '">' +
+            statusIcon + ' ' + (dining.status || 'Pending') +
+        '</span>' +
+    '</div>' +
+    '<div class="text-sm text-purple-600 font-medium">' + dining.type + '</div>' +
+'</div>' +
+
                     '<div class="flex items-center space-x-2">' +
                         '<button onclick="editItem(' + dining.id + ', \'dining\')" class="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-xl text-white transition-colors shadow-lg">' +
                             '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
@@ -1296,15 +1299,14 @@ function toggleSchedule() {
                 
                 '<!-- Status and buttons -->' +
                 '<div class="flex items-center justify-between mb-4">' +
-                    '<div class="flex items-center space-x-3">' +
-                        '<span class="px-3 py-1 rounded-full text-sm font-bold text-white ' + placeColor + '">' +
-                            activity.place +
-                        '</span>' +
-                        '<div class="text-sm text-blue-600 font-medium">' + activity.type + '</div>' +
-                        '<span class="px-4 py-2 rounded-2xl text-sm font-bold text-white ' + statusColor + '">' +
-                            statusIcon + ' ' + (activity.status || 'Pending') +
-                        '</span>' +
-                    '</div>' +
+                    '<div>' +
+    '<div class="flex items-center space-x-3 mb-1">' +
+        '<span class="px-3 py-1 rounded-full text-sm font-bold text-white ' + placeColor + '">' + activity.place + '</span>' +
+        '<span class="px-4 py-2 rounded-2xl text-sm font-bold text-white ' + statusColor + '">' + statusIcon + ' ' + (activity.status || 'Pending') + '</span>' +
+    '</div>' +
+    '<div class="text-sm text-blue-600 font-medium">' + activity.type + '</div>' +
+'</div>' +
+
                     '<div class="flex items-center space-x-2">' +
                         '<button onclick="editItem(' + activity.id + ', \'activities\')" class="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-xl text-white transition-colors shadow-lg">' +
                             '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
