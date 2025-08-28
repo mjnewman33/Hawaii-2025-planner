@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hawaii-trip-v1';
+const CACHE_NAME = 'hawaii-trip-v2';
 const urlsToCache = [
   '/',
   '/index.html'
@@ -26,4 +26,5 @@ self.addEventListener('fetch', event => {
     caches.match(event.request)
       .then(response => response || fetch(event.request))
   );
+
 });
