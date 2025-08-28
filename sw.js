@@ -24,18 +24,32 @@ self.addEventListener('activate', event => {
   );
 });
 
-
 self.addEventListener('fetch', event => {
+  // Always bypass cache for your Google Sheets API
   if (event.request.url.includes('script.google.com')) {
     event.respondWith(fetch(event.request));
     return;
   }
-  
+
+  // Force network-first strategy for index.html (always try to grab fresh version)
+  if (event.request.mode === 'navigate' || event.request.url.endsWith('/index.html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          return caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, response.clone());
+            return response;
+          });
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // For everything else: cache-first
   event.respondWith(
     caches.match(event.request)
       .then(response => response || fetch(event.request))
   );
-
 });
-
 
