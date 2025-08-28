@@ -576,6 +576,56 @@
             }
         }
 
+        // Create a proper Hawaii datetime (Hawaii is always UTC-10, no DST)
+        function createHawaiiDateTime(dateStr, timeStr) {
+            const hawaiiOffset = -10; // Hours from UTC (Hawaii doesn't do daylight saving)
+            
+            // Parse the date and time
+            const [year, month, day] = dateStr.split('-').map(Number);
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            
+            // Create date in UTC, then adjust for Hawaii offset
+            const utcDate = new Date(Date.UTC(year, month - 1, day, hours - hawaiiOffset, minutes));
+            
+            return utcDate;
+        }
+
+        // Accurate countdown timer function
+        function startCountdown(arrivalDateStr, arrivalTimeStr) {
+            const timerEl = document.getElementById("countdownTimer");
+
+            // Clear any existing timer when switching couples
+            if (timerEl._interval) clearInterval(timerEl._interval);
+
+            // Create arrival datetime properly in Hawaii timezone (converts to UTC internally)
+            const arrivalInHawaii = createHawaiiDateTime(arrivalDateStr, arrivalTimeStr);
+
+            function updateCountdown() {
+                // Get current time in UTC (JavaScript Date objects are internally UTC)
+                const now = new Date();
+                
+                // Both dates are now UTC milliseconds, so subtraction is accurate regardless of device timezone
+                const distance = arrivalInHawaii - now;
+
+                if (distance <= 0) {
+                    // Remove the countdown entirely
+                    timerEl.textContent = '';
+                    clearInterval(timerEl._interval);
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                timerEl.textContent = `✈️ ${days}d ${hours}h ${minutes}m ${seconds}s 🎉`;
+            }
+
+            updateCountdown(); // Run immediately
+            timerEl._interval = setInterval(updateCountdown, 1000);
+        }
+
         // Tab management
         function setActiveTab(tab) {
             currentActiveTab = tab;
@@ -620,20 +670,31 @@
         }
 
         function setSelectedPerson(person) {
-            currentSelectedPerson = person;
-            document.getElementById('personSelector').value = person;
-            
-            if (person === 'all') {
-                document.getElementById('individualItinerary').classList.add('hidden');
-                document.getElementById('mainContent').classList.remove('hidden');
-            } else {
-                document.getElementById('individualItinerary').classList.remove('hidden');
-                document.getElementById('mainContent').classList.add('hidden');
-                document.getElementById('itineraryTitle').textContent = person + ' Itinerary';
-                document.getElementById('itineraryCouple').textContent = person;
-                loadIndividualItinerary(person);
+    currentSelectedPerson = person;
+    document.getElementById('personSelector').value = person;
+
+    if (person === 'all') {
+        document.getElementById('individualItinerary').classList.add('hidden');
+        document.getElementById('mainContent').classList.remove('hidden');
+    } else {
+        // Clear any existing countdown first
+        const timerEl = document.getElementById("countdownTimer");
+        if (timerEl) {
+            if (timerEl._interval) {
+                clearInterval(timerEl._interval);
+                timerEl._interval = null;
             }
+            timerEl.textContent = '';
         }
+
+        document.getElementById('individualItinerary').classList.remove('hidden');
+        document.getElementById('mainContent').classList.add('hidden');
+        document.getElementById('itineraryTitle').textContent = person + ' Itinerary';
+        document.getElementById('itineraryCouple').textContent = person;
+
+        loadIndividualItinerary(person);
+    }
+}
 
         function setFlightSubTab(subTab) {
             currentFlightSubTab = subTab;
@@ -975,7 +1036,39 @@
                 return;
             }
             
-            tripData.activities.forEach(function(activity) {
+            // Sort activities by status, location, and date
+            const sortedActivities = tripData.activities.slice().sort(function(a, b) {
+                // Get status priority (1 = Confirmed/Booked, 2 = Pending, 3 = everything else)
+                function getStatusPriority(status) {
+                    if (status === 'Confirmed' || status === 'Booked') return 1;
+                    if (status === 'Pending') return 2;
+                    return 3;
+                }
+                
+                const aPriority = getStatusPriority(a.status);
+                const bPriority = getStatusPriority(b.status);
+                
+                // First sort by status priority
+                if (aPriority !== bPriority) {
+                    return aPriority - bPriority;
+                }
+                
+                // Then sort by location
+                const aLocation = a.place || '';
+                const bLocation = b.place || '';
+                if (aLocation !== bLocation) {
+                    return aLocation.localeCompare(bLocation);
+                }
+                
+                // Finally, for Confirmed/Booked items with dates, sort by date
+                if (aPriority === 1 && a.dates && b.dates) {
+                    return new Date(a.dates) - new Date(b.dates);
+                }
+                
+                return 0;
+            });
+            
+            sortedActivities.forEach(function(activity) {
                 const activityCard = createActivityCard(activity);
                 container.appendChild(activityCard);
             });
@@ -990,7 +1083,36 @@
                 return;
             }
             
-            tripData.dining.forEach(function(dining) {
+            // Sort dining by status, location, and date (same logic as activities)
+            const sortedDining = tripData.dining.slice().sort(function(a, b) {
+                // Get status priority (1 = Confirmed/Booked, 2 = Pending, 3 = everything else)
+                function getStatusPriority(status) {
+                    if (status === 'Confirmed' || status === 'Booked') return 1;
+                    if (status === 'Pending') return 2;
+                    return 3;
+                }
+                
+                const aPriority = getStatusPriority(a.status);
+                const bPriority = getStatusPriority(b.status);
+                
+                // First sort by status priority
+                if (aPriority !== bPriority) {
+                    return aPriority - bPriority;
+                }
+                
+                // Then sort by location (island)
+                const aLocation = a.island || '';
+                const bLocation = b.island || '';
+                if (aLocation !== bLocation) {
+                    return aLocation.localeCompare(bLocation);
+                }
+                
+                // Note: Dining typically doesn't have dates, but if they do, sort by them
+                // This keeps the logic consistent with activities
+                return 0;
+            });
+            
+            sortedDining.forEach(function(dining) {
                 const diningCard = createDiningCard(dining);
                 container.appendChild(diningCard);
             });
@@ -1452,10 +1574,12 @@
                 coupleIndividuals.push('Meghan', 'Newman');
             }
             
-            const arrival = tripData.arrivals.find(function(flight) {
-                return flight.names === coupleName;
+            // Add ALL arrival flights for this couple to the itinerary
+            const allArrivals = tripData.arrivals.filter(function(flight) {
+                return flight.names === coupleName && flight.date;
             });
-            if (arrival && arrival.date) {
+            
+            allArrivals.forEach(function(arrival) {
                 coupleEvents.push({
                     date: arrival.date,
                     time: arrival.arrivalTime,
@@ -1466,7 +1590,16 @@
                     type: 'flight',
                     priority: 1
                 });
-            }
+            });
+            
+            // Find the earliest arrival for countdown timer
+            const earliestArrival = allArrivals.filter(function(flight) {
+                return flight.arrivalTime; // Must have a time for countdown
+            }).sort(function(a, b) {
+                const dateTimeA = new Date(a.date + ' ' + a.arrivalTime);
+                const dateTimeB = new Date(b.date + ' ' + b.arrivalTime);
+                return dateTimeA - dateTimeB;
+            })[0];
             
             const interIsland = tripData.interIslandFlights.find(function(flight) {
                 return flight.names === coupleName;
@@ -1625,13 +1758,11 @@
                         type: 'accommodation',
                         priority: 4
                     });
-            // Create Date object from Hawaii arrival
-            const arrivalDate = new Date(arrival.date + ' ' + arrival.arrivalTime);
 
-           // Add 6 hours (5 for time difference + 1 for daylight saving rollback)
-           arrivalDate.setHours(arrivalDate.getHours() + 6);
-
-           startCountdown(arrivalDate);
+                    // Start countdown timer using the earliest arrival (not just first found)
+                    if (earliestArrival) {
+                        startCountdown(earliestArrival.date, earliestArrival.arrivalTime);
+                    }
                 }
             }
             
@@ -1701,38 +1832,6 @@
                 container.appendChild(eventCard);
             });
         }
-
-function startCountdown(dateTimeStr) {
-    const timerEl = document.getElementById("countdownTimer");
-
-    // Clear any existing timer when switching couples
-    if (timerEl._interval) clearInterval(timerEl._interval);
-
-    const targetDate = new Date(dateTimeStr);
-
-    function updateCountdown() {
-        const now = new Date();
-        const distance = targetDate - now;
-
-        if (distance <= 0) {
-            // Remove the countdown entirely
-            timerEl.textContent = '';
-            clearInterval(timerEl._interval);
-            return;
-        }
-
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        timerEl.textContent = `✈️ ${days}d ${hours}h ${minutes}m ${seconds}s 🎉`;
-    }
-
-    updateCountdown(); // Run immediately
-    timerEl._interval = setInterval(updateCountdown, 1000);
-}
-
 
         // Add/Edit functions
         function addNewFlight() {
