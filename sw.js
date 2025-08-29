@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hawaii-trip-v12';  // bumped version
+const CACHE_NAME = 'hawaii-trip-v12';  // your version
 const urlsToCache = [
   '/',
   '/index.html'
@@ -9,7 +9,10 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
-      .then(() => self.skipWaiting())
+      .then(() => {
+        // Force immediate activation
+        return self.skipWaiting();
+      })
   );
 });
 
@@ -22,11 +25,24 @@ self.addEventListener('activate', event => {
           .filter(name => name !== CACHE_NAME)
           .map(name => caches.delete(name))
       );
-    }).then(() => self.clients.claim())
+    }).then(() => {
+      // Take control immediately
+      return self.clients.claim();
+    }).then(() => {
+      // Notify all clients that new SW is active
+      return self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage({
+            type: 'SW_UPDATED',
+            message: 'Service worker updated successfully'
+          });
+        });
+      });
+    })
   );
 });
 
-// Fetch
+// Fetch (unchanged)
 self.addEventListener('fetch', event => {
   if (event.request.url.includes('script.google.com')) {
     event.respondWith(fetch(event.request));
@@ -38,18 +54,3 @@ self.addEventListener('fetch', event => {
       .then(response => response || fetch(event.request))
   );
 });
-
-// Listen for messages from page
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-});
-
-
-
-
-
-
-
-
