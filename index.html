@@ -2564,12 +2564,21 @@ function cToF(c) {
 }
 function getWeather(code) {
     switch(code) {
-        case 0: return { icon: '☀️', text: 'Clear' };
+        case 0: return { icon: '☀️', text: 'Sunny' };
         case 1: return { icon: '⛅', text: 'Partly Cloudy' };
         case 2: return { icon: '☁️', text: 'Cloudy' };
         case 3: return { icon: '🌧️', text: 'Rainy' };
-        case 61: return { icon: '🌦️', text: 'Showers' };
-        case 71: return { icon: '🌨️', text: 'Snow' };
+        case 45: return { icon: '🌫️', text: 'Fog' };
+        case 48: return { icon: '🌫️', text: 'Fog' };
+        case 51: return { icon: '🌦️', text: 'Drizzle' };
+        case 53: return { icon: '🌦️', text: 'Drizzle' };
+        case 55: return { icon: '🌦️', text: 'Drizzle' };
+        case 61: return { icon: '🌧️', text: 'Rain' };
+        case 63: return { icon: '🌧️', text: 'Rain' };
+        case 65: return { icon: '🌧️', text: 'Rain Heavy' };
+        case 71: return { icon: '🌨️', text: 'Snow Light' };
+        case 73: return { icon: '🌨️', text: 'Snow Moderate' };
+        case 75: return { icon: '🌨️', text: 'Snow Heavy' };
         case 95: return { icon: '⛈️', text: 'Thunderstorm' };
         default: return { icon: '❓', text: 'Unknown' };
     }
