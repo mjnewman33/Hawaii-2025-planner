@@ -2730,20 +2730,50 @@ document.addEventListener('touchstart', (e) => {
     }
 }, { passive: true });
 
+// Add SW message listener
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data.type === 'SW_UPDATED') {
+            console.log('Service worker updated, reloading page...');
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
+        }
+    });
+}
+
 document.addEventListener('touchend', async () => {
     if (isPulling && pullStartTime && (Date.now() - pullStartTime) >= 2000) {
-        console.log('2-second pull detected, refreshing...');
+        console.log('2-second pull detected, force updating...');
         
-        // Update service worker
-        if ('serviceWorker' in navigator) {
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            for (const reg of registrations) {
-                await reg.update();
+        try {
+            if ('serviceWorker' in navigator) {
+                // Clear all caches first
+                const cacheNames = await caches.keys();
+                await Promise.all(cacheNames.map(name => caches.delete(name)));
+                
+                // Force update service worker
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (const reg of registrations) {
+                    await reg.update();
+                    if (reg.waiting) {
+                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    }
+                }
+                
+                // Small delay then reload
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                // Fallback: just reload data
+                await loadTripData();
             }
+        } catch (error) {
+            console.error('Update failed:', error);
+            // Fallback: just reload data
+            await loadTripData();
         }
-        
-        // Refresh data using your existing function
-        await loadTripData();
     }
     
     isPulling = false;
