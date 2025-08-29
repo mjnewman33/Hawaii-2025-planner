@@ -784,20 +784,23 @@ function toggleSchedule() {
         }
 
         function setSelectedPerson(person) {
-            currentSelectedPerson = person;
-            document.getElementById('personSelector').value = person;
-            
-            if (person === 'all') {
-                document.getElementById('individualItinerary').classList.add('hidden');
-                document.getElementById('mainContent').classList.remove('hidden');
-            } else {
-                document.getElementById('individualItinerary').classList.remove('hidden');
-                document.getElementById('mainContent').classList.add('hidden');
-                document.getElementById('itineraryTitle').textContent = person + ' Itinerary';
-                document.getElementById('itineraryCouple').textContent = person;
-                loadIndividualItinerary(person);
-            }
-        }
+    currentSelectedPerson = person;
+    document.getElementById('personSelector').value = person;
+
+    const tabViews = ['dashboardView', 'calendarView', 'flightsView', 'experiencesView', 'hawaiiView', 'mauiView'];
+
+    if (person === 'all') {
+        document.getElementById('individualItinerary').classList.add('hidden');
+        tabViews.forEach(id => document.getElementById(id).classList.remove('hidden'));
+    } else {
+        document.getElementById('individualItinerary').classList.remove('hidden');
+        tabViews.forEach(id => document.getElementById(id).classList.add('hidden')); // hide all tabs
+        document.getElementById('itineraryTitle').textContent = person + ' Itinerary';
+        document.getElementById('itineraryCouple').textContent = person;
+        loadIndividualItinerary(person);
+    }
+}
+
 
         function setFlightSubTab(subTab) {
             currentFlightSubTab = subTab;
