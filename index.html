@@ -31,46 +31,48 @@
             100% { transform: rotate(360deg); }
         }
 		
-		 #weatherContainer {
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 4px;
-            max-width: calc(100% - 32px);
-			margin: 0 auto; 
-            box-sizing: border-box;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1173&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
-            background-position: center;
-            background-size: cover;
-            background-repeat: no-repeat;
-            color: white;
-            font-size: 18px;
-			overflow: hidden; /* needed for pseudo-element */
+		#weatherContainer {
+    position: relative;
+    display: flex;
+    justify-content: space-between; /* left/center/right columns */
+    padding: 12px 4px;              /* 12px top/bottom, 4px left/right */
+    max-width: calc(100% - 32px);
+    margin: 0 auto;
+    box-sizing: border-box;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1173&auto=format&fit=crop');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+    font-size: 18px;
+    overflow: hidden;
 }
 
-/* Overlay to dull the background */
 #weatherContainer::before {
     content: "";
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.3); /* adjust alpha 0.1–0.5 for more/less dull */
+    background: rgba(0,0,0,0.3);
     z-index: 0;
 }
 
-/* Keep content above the overlay */
 #weatherContainer > * {
     position: relative;
     z-index: 1;
 }
 
 .weather-day {
-    display: flex;             /* stack content vertically */
-    flex-direction: column;    
-    align-items: center;       /* center everything horizontally */
-    text-align: center;        /* center text inside each div */
-    flex: 0 1 auto;               /* allow columns to expand equally */
+    display: flex;
+    flex-direction: column; /* stack content vertically */
+    align-items: center;    /* center content horizontally */
+    text-align: center;
+    flex: 0 1 auto;         /* auto width, shrink if needed */
+    min-width: 0;           /* prevent forced wrapping */
+    margin: 0 2px;          /* small gap between columns */
+}
+
 	
     </style>
 </head>
@@ -2556,70 +2558,72 @@ function setupJillAlert() {
 }
 
 // ADD ALL THE WEATHER FUNCTIONS HERE
-        function getWeather(precipitation) {
-            if (precipitation > 10) return { icon: '🌧️', text: 'Rainy' };
-            if (precipitation > 1) return { icon: '🌦️', text: 'Cloudy' };
-            return { icon: '☀️', text: 'Sunny' };
+// Temperature conversion utility
+function cToF(c) {
+    return Math.round(c * 9 / 5 + 32);
+}
+function getWeather(code) {
+    switch(code) {
+        case 0: return { icon: '☀️', text: 'Clear' };
+        case 1: return { icon: '⛅', text: 'Partly Cloudy' };
+        case 2: return { icon: '☁️', text: 'Cloudy' };
+        case 3: return { icon: '🌧️', text: 'Rainy' };
+        case 61: return { icon: '🌦️', text: 'Showers' };
+        case 71: return { icon: '🌨️', text: 'Snow' };
+        case 95: return { icon: '⛈️', text: 'Thunderstorm' };
+        default: return { icon: '❓', text: 'Unknown' };
+    }
+}
+
+async function fetchWeather() {
+    const container = document.getElementById('weatherContainer');
+    const today = new Date();
+    const forecastData = [];
+
+    for (let i = 0; i < 3; i++) {
+        const dayDate = new Date(today);
+        dayDate.setDate(today.getDate() + i);
+
+        const location = { lat: 19.705, lon: -155.090 }; // Hawaii example
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=Pacific/Honolulu`;
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            const dayData = data.daily;
+
+            const dayLabel = i === 0 ? 'Today' : (i === 1 ? 'Tomorrow' : dayDate.toLocaleDateString('en-US', { weekday: 'short' }));
+            const weather = getWeather(dayData.weathercode[i]);
+
+            forecastData.push({
+                dayName: dayLabel,
+                icon: weather.icon,
+                condition: weather.text,
+                temp: `${cToF(dayData.temperature_2m_max[i])}° / ${cToF(dayData.temperature_2m_min[i])}°`
+            });
+        } catch (err) {
+            console.error('Weather fetch failed:', err);
+            forecastData.push({
+                dayName: i === 0 ? 'Today' : (i === 1 ? 'Tomorrow' : dayDate.toLocaleDateString('en-US', { weekday: 'short' })),
+                icon: '❓',
+                condition: '--',
+                temp: '--'
+            });
         }
+    }
 
-        function cToF(c) {
-            return Math.round(c * 9 / 5 + 32);
-        }
+    container.innerHTML = forecastData.map(f => `
+        <div class="weather-day">
+            <div style="font-weight: bold;">${f.dayName}</div>
+            <div class="weather-info">
+                <span class="weather-emoji">${f.icon}</span>
+                <span>${f.condition}</span>
+            </div>
+            <div>${f.temp}</div>
+        </div>
+    `).join('');
+}
 
-        async function fetchWeather() {
-            const container = document.getElementById('weatherContainer');
-            const transitionDate = new Date('2026-01-03');
-            const today = new Date();
-            const forecastData = [];
-
-            for (let i = 0; i < 3; i++) {
-                const dayDate = new Date(today);
-                dayDate.setDate(today.getDate() + i);
-
-                const isMaui = dayDate >= transitionDate;
-                const locationName = isMaui ? 'Maui' : 'Hawaii';
-                const location = isMaui ? { lat: 20.798, lon: -156.331 } : { lat: 19.705, lon: -155.090 };
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Pacific/Honolulu`;
-
-                try {
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    const dayData = data.daily;
-
-                    const dayLabel = i === 0 ? 'Today' : (i === 1 ? 'Tomorrow' : dayDate.toLocaleDateString('en-US', { weekday: 'short' }));
-                    const weather = getWeather(dayData.precipitation_sum[i]);
-
-                    forecastData.push({
-                        dayName: dayLabel,
-                        location: locationName,
-                        icon: weather.icon,
-                        condition: weather.text,
-                        temp: `${cToF(dayData.temperature_2m_max[i])}° / ${cToF(dayData.temperature_2m_min[i])}°`
-                    });
-                } catch (err) {
-                    console.error('Weather fetch failed:', err);
-                    forecastData.push({
-                        dayName: i === 0 ? 'Today' : (i === 1 ? 'Tomorrow' : dayDate.toLocaleDateString('en-US', { weekday: 'short' })),
-                        location: isMaui ? 'Maui' : 'Hawaii',
-                        icon: '❓',
-                        condition: '--',
-                        temp: '--'
-                    });
-                }
-            }
-
-            container.innerHTML = forecastData.map(f => `
-                <div class="weather-day">
-                    <div style="font-weight: bold;">${f.dayName}</div>
-                    <div class="weather-location">${f.location}</div>
-                    <div class="weather-info">
-                        <span class="weather-emoji">${f.icon}</span>
-                        <span>${f.condition}</span>
-                    </div>
-                    <div>${f.temp}</div>
-                </div>
-            `).join('');
-        }
 
 // Register service worker
 if ('serviceWorker' in navigator) {
