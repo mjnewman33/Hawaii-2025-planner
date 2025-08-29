@@ -33,9 +33,10 @@
 		
 		#weatherContainer {
     position: relative;
-    display: flex;
-    justify-content: space-between; /* left/center/right columns */
-    padding: 12px 4px;              /* 12px top/bottom, 4px left/right */
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* exactly 2 equal columns */
+    gap: 8px;                              /* space between columns */
+    padding: 12px 8px;
     max-width: calc(100% - 32px);
     margin: 0 auto;
     box-sizing: border-box;
@@ -53,7 +54,7 @@
 #weatherContainer::before {
     content: "";
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
+    inset: 0;
     background: rgba(0,0,0,0.3);
     z-index: 0;
 }
@@ -65,13 +66,12 @@
 
 .weather-day {
     display: flex;
-    flex-direction: column; /* stack content vertically */
-    align-items: center;    /* center content horizontally */
+    flex-direction: column;
+    align-items: center;
     text-align: center;
-    flex: 0 1 auto;         /* auto width, shrink if needed */
-    min-width: 0;           /* prevent forced wrapping */
-    margin: 0 2px;          /* small gap between columns */
+    padding: 8px;
 }
+
 
 	
     </style>
@@ -2558,25 +2558,68 @@ function setupJillAlert() {
 }
 
 // ADD ALL THE WEATHER FUNCTIONS HERE
-function getWeather(code, text) {
-    if (/sunny/i.test(text)) return { icon: '☀️', text };
-    if (/clear/i.test(text)) return { icon: '☀️', text };
-    if (/cloud/i.test(text)) return { icon: '☁️', text };
-    if (/partly/i.test(text)) return { icon: '⛅', text };
-    if (/rain/i.test(text)) return { icon: '🌧️', text };
-    if (/drizzle/i.test(text)) return { icon: '🌦️', text };
-    if (/thunder/i.test(text)) return { icon: '⛈️', text };
-    if (/snow/i.test(text)) return { icon: '🌨️', text };
-    if (/fog/i.test(text)) return { icon: '🌫️', text };
-    return { icon: '❓', text };
+const weatherMap = {
+    1000: { icon: '☀️', text: 'Sunny' },
+    1003: { icon: '⛅', text: 'Partly cloudy' },
+    1006: { icon: '☁️', text: 'Cloudy' },
+    1009: { icon: '☁️', text: 'Overcast' },
+    1030: { icon: '🌫️', text: 'Mist' },
+    1063: { icon: '🌦️', text: 'Patchy rain' },
+    1066: { icon: '🌨️', text: 'Patchy snow possible' },
+    1069: { icon: '🌨️', text: 'Patchy sleet possible' },
+    1072: { icon: '🌧️', text: 'Patchy freezing drizzle possible' },
+    1087: { icon: '⛈️', text: 'Thundery' },
+    1114: { icon: '🌨️', text: 'Blowing snow' },
+    1117: { icon: '🌨️', text: 'Blizzard' },
+    1135: { icon: '🌫️', text: 'Fog' },
+    1147: { icon: '🌫️', text: 'Fog' },
+    1150: { icon: '🌦️', text: 'Drizzle' },
+    1153: { icon: '🌦️', text: 'Drizzle' },
+    1168: { icon: '🌦️', text: 'Drizzle' },
+    1171: { icon: '🌦️', text: 'Drizzle' },
+    1180: { icon: '🌦️', text: 'Drizzle' },
+    1183: { icon: '🌦️', text: 'Drizzle' },
+    1186: { icon: '🌧️', text: 'Rain' },
+    1189: { icon: '🌧️', text: 'Rain' },
+    1192: { icon: '🌧️', text: 'Rain' },
+    1195: { icon: '🌧️', text: 'Rain' },
+    1198: { icon: '🌧️', text: 'Rain' },
+    1201: { icon: '🌧️', text: 'Rain' },
+    1204: { icon: '🌨️', text: 'Light sleet' },
+    1207: { icon: '🌨️', text: 'Moderate or heavy sleet' },
+    1210: { icon: '🌨️', text: 'Patchy light snow' },
+    1213: { icon: '🌨️', text: 'Light snow' },
+    1216: { icon: '🌨️', text: 'Patchy moderate snow' },
+    1219: { icon: '🌨️', text: 'Moderate snow' },
+    1222: { icon: '🌨️', text: 'Patchy heavy snow' },
+    1225: { icon: '🌨️', text: 'Heavy snow' },
+    1237: { icon: '❄️', text: 'Ice pellets' },
+    1240: { icon: '🌧️', text: 'Rain Shower' },
+    1243: { icon: '🌧️', text: 'Heavy Rain' },
+    1246: { icon: '🌧️', text: 'Torrential Rain' },
+    1249: { icon: '🌨️', text: 'Sleet showers' },
+    1252: { icon: '🌨️', text: 'Sleet showers' },
+    1255: { icon: '🌨️', text: 'Light snow showers' },
+    1258: { icon: '🌨️', text: 'Moderate or heavy snow showers' },
+    1261: { icon: '❄️', text: 'Light showers of ice pellets' },
+    1264: { icon: '❄️', text: 'Moderate or heavy showers of ice pellets' },
+    1273: { icon: '⛈️', text: 'Rain with thunder' },
+    1276: { icon: '⛈️', text: 'Rain with thunder' },
+    1279: { icon: '⛈️', text: 'Patchy light snow with thunder' },
+    1282: { icon: '⛈️', text: 'Moderate or heavy snow with thunder' }
+};
+
+function getWeather(code) {
+    return weatherMap[code] || { icon: '❓', text: '--' };
 }
+
 
 async function fetchWeather() {
     const container = document.getElementById('weatherContainer');
     const today = new Date();
     const forecastData = [];
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 2; i++) {
         const dayDate = new Date(today);
         dayDate.setDate(today.getDate() + i);
 
@@ -2594,8 +2637,8 @@ async function fetchWeather() {
             const data = await response.json();
             const dayData = data.forecast.forecastday[i];
 
-            const dayLabel = i === 0 ? 'Today' : (i === 1 ? 'Tomorrow' : dayDate.toLocaleDateString('en-US', { weekday: 'short' }));
-            const weather = getWeather(dayData.day.condition.code, dayData.day.condition.text);
+            const dayLabel = i === 0 ? 'Today' : 'Tomorrow';
+            const weather = getWeather(dayData.day.condition.code);
 
             forecastData.push({
                 dayName: dayLabel,
@@ -2606,11 +2649,11 @@ async function fetchWeather() {
         } catch (err) {
             console.error('Weather fetch failed:', err);
             forecastData.push({
-                dayName: i === 0 ? 'Today' : (i === 1 ? 'Tomorrow' : dayDate.toLocaleDateString('en-US', { weekday: 'short' })),
-                icon: '❓',
-                condition: '--',
-                temp: '--'
-            });
+    dayName: i === 0 ? 'Today' : 'Tomorrow',
+    icon: '❓',
+    condition: '--',
+    temp: '--'
+});
         }
     }
 
