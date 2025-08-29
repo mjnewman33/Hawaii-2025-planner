@@ -65,12 +65,46 @@
 }
 
 .weather-day {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex: 1;
+    min-width: 150px;
+    max-width: 200px;
     text-align: center;
     padding: 8px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 0.9rem; /* smaller text */
 }
+
+.day-label {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.weather-location {
+    font-size: 0.8rem;
+    opacity: 0.85;
+}
+
+.weather-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin: 4px 0;
+}
+
+.weather-emoji {
+    font-size: 1.2rem;
+}
+
+.weather-temp {
+    font-size: 0.85rem;
+}
+
 
 
 	
@@ -2613,7 +2647,6 @@ function getWeather(code) {
     return weatherMap[code] || { icon: '❓', text: '--' };
 }
 
-
 async function fetchWeather() {
     const container = document.getElementById('weatherContainer');
     const today = new Date();
@@ -2626,6 +2659,7 @@ async function fetchWeather() {
         // Switch location: Hawaii until Jan 3, 2026, then Maui
         const transitionDate = new Date('2026-01-03');
         const isMaui = dayDate >= transitionDate;
+        const locationName = isMaui ? 'Maui' : 'Hawaii';
         const location = isMaui 
             ? { lat: 20.948861952330113, lon: -156.69071111349115 }  // Maui
             : { lat: 19.62574725596981, lon: -155.9844374558186 };   // Hawaii
@@ -2642,6 +2676,7 @@ async function fetchWeather() {
 
             forecastData.push({
                 dayName: dayLabel,
+                location: locationName,
                 icon: weather.icon,
                 condition: weather.text,
                 temp: `${dayData.day.maxtemp_f}° / ${dayData.day.mintemp_f}°`
@@ -2649,22 +2684,24 @@ async function fetchWeather() {
         } catch (err) {
             console.error('Weather fetch failed:', err);
             forecastData.push({
-    dayName: i === 0 ? 'Today' : 'Tomorrow',
-    icon: '❓',
-    condition: '--',
-    temp: '--'
-});
+                dayName: i === 0 ? 'Today' : 'Tomorrow',
+                location: '--',
+                icon: '❓',
+                condition: '--',
+                temp: '--'
+            });
         }
     }
 
     container.innerHTML = forecastData.map(f => `
         <div class="weather-day">
-            <div style="font-weight: bold;">${f.dayName}</div>
+            <div class="day-label">${f.dayName}</div>
+            <div class="weather-location">${f.location}</div>
             <div class="weather-info">
                 <span class="weather-emoji">${f.icon}</span>
                 <span>${f.condition}</span>
             </div>
-            <div>${f.temp}</div>
+            <div class="weather-temp">${f.temp}</div>
         </div>
     `).join('');
 }
