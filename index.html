@@ -791,7 +791,9 @@ function toggleSchedule() {
 
     if (person === 'all') {
         document.getElementById('individualItinerary').classList.add('hidden');
-        tabViews.forEach(id => document.getElementById(id).classList.remove('hidden'));
+        // show only the active tab
+        const activeTabView = currentActiveTab + 'View';
+        document.getElementById(activeTabView).classList.remove('hidden');
     } else {
         document.getElementById('individualItinerary').classList.remove('hidden');
         tabViews.forEach(id => document.getElementById(id).classList.add('hidden')); // hide all tabs
