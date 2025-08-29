@@ -2558,31 +2558,17 @@ function setupJillAlert() {
 }
 
 // ADD ALL THE WEATHER FUNCTIONS HERE
-// Temperature conversion utility
-function cToF(c) {
-    return Math.round(c * 9 / 5 + 32);
-}
-function getWeather(code) {
-    switch(code) {
-        case 0: return { icon: '☀️', text: 'Sunny' };
-        case 1: return { icon: '⛅', text: 'Partly Cloudy' };
-        case 2: return { icon: '☁️', text: 'Cloudy' };
-        case 3: return { icon: '🌧️', text: 'Rainy' };
-        case 45: return { icon: '🌫️', text: 'Fog' };
-        case 48: return { icon: '🌫️', text: 'Fog' };
-        case 51: return { icon: '🌦️', text: 'Drizzle' };
-        case 53: return { icon: '🌦️', text: 'Drizzle' };
-        case 55: return { icon: '🌦️', text: 'Drizzle' };
-        case 61: return { icon: '🌧️', text: 'Rain' };
-        case 63: return { icon: '🌧️', text: 'Rain' };
-        case 65: return { icon: '🌧️', text: 'Rain Heavy' };
-        case 71: return { icon: '🌨️', text: 'Snow Light' };
-        case 73: return { icon: '🌨️', text: 'Snow Moderate' };
-        case 75: return { icon: '🌨️', text: 'Snow Heavy' };
-		case 80: return { icon: '🌦️', text: 'Showers' };
-        case 95: return { icon: '⛈️', text: 'Thunderstorm' };
-        default: return { icon: '❓', text: 'Unknown' };
-    }
+function getWeather(code, text) {
+    if (/sunny/i.test(text)) return { icon: '☀️', text };
+    if (/clear/i.test(text)) return { icon: '☀️', text };
+    if (/cloud/i.test(text)) return { icon: '☁️', text };
+    if (/partly/i.test(text)) return { icon: '⛅', text };
+    if (/rain/i.test(text)) return { icon: '🌧️', text };
+    if (/drizzle/i.test(text)) return { icon: '🌦️', text };
+    if (/thunder/i.test(text)) return { icon: '⛈️', text };
+    if (/snow/i.test(text)) return { icon: '🌨️', text };
+    if (/fog/i.test(text)) return { icon: '🌫️', text };
+    return { icon: '❓', text };
 }
 
 async function fetchWeather() {
@@ -2594,22 +2580,28 @@ async function fetchWeather() {
         const dayDate = new Date(today);
         dayDate.setDate(today.getDate() + i);
 
-        const location = { lat: 19.705, lon: -155.090 }; // Hawaii example
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=Pacific/Honolulu`;
+        // Switch location: Hawaii until Jan 3, 2026, then Maui
+        const transitionDate = new Date('2026-01-03');
+        const isMaui = dayDate >= transitionDate;
+        const location = isMaui 
+            ? { lat: 20.948861952330113, lon: -156.69071111349115 }  // Maui
+            : { lat: 19.62574725596981, lon: -155.9844374558186 };   // Hawaii
+
+        const url = `https://api.weatherapi.com/v1/forecast.json?key=b13faaf5f20649ce88803731252908&q=${location.lat},${location.lon}&days=3`;
 
         try {
             const response = await fetch(url);
             const data = await response.json();
-            const dayData = data.daily;
+            const dayData = data.forecast.forecastday[i];
 
             const dayLabel = i === 0 ? 'Today' : (i === 1 ? 'Tomorrow' : dayDate.toLocaleDateString('en-US', { weekday: 'short' }));
-            const weather = getWeather(dayData.weathercode[i]);
+            const weather = getWeather(dayData.day.condition.code, dayData.day.condition.text);
 
             forecastData.push({
                 dayName: dayLabel,
                 icon: weather.icon,
                 condition: weather.text,
-                temp: `${cToF(dayData.temperature_2m_max[i])}° / ${cToF(dayData.temperature_2m_min[i])}°`
+                temp: `${dayData.day.maxtemp_f}° / ${dayData.day.mintemp_f}°`
             });
         } catch (err) {
             console.error('Weather fetch failed:', err);
