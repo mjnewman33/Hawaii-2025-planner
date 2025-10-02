@@ -2659,6 +2659,10 @@ async function fetchWeather() {
     const today = new Date();
     const forecastData = [];
 
+	// 👇 ADD THIS
+    console.log('=== WEATHER DEBUG START ===');
+    console.log('Fetching weather for date:', today.toISOString());
+
     for (let i = 0; i < 2; i++) {
         const dayDate = new Date(today);
         dayDate.setDate(today.getDate() + i);
@@ -2673,13 +2677,32 @@ async function fetchWeather() {
 
         const url = `https://api.weatherapi.com/v1/forecast.json?key=b13faaf5f20649ce88803731252908&q=${location.lat},${location.lon}&days=3`;
 
+		 // 👇 ADD THIS
+        console.log(`\n--- Day ${i} (${i === 0 ? 'Today' : 'Tomorrow'}) ---`);
+        console.log('Date:', dayDate.toDateString());
+        console.log('URL:', url);
+
         try {
             const response = await fetch(url);
             const data = await response.json();
+
+			/ 👇 ADD THESE
+            console.log('API Response received');
+            console.log('Number of forecast days in response:', data.forecast.forecastday.length);
+			
             const dayData = data.forecast.forecastday[i];
+
+			 // 👇 ADD THESE - THE MOST IMPORTANT ONES!
+            console.log('Condition CODE:', dayData.day.condition.code);
+            console.log('Condition TEXT from API:', dayData.day.condition.text);
+            console.log('Max temp:', dayData.day.maxtemp_f);
+            console.log('Min temp:', dayData.day.mintemp_f);
 
             const dayLabel = i === 0 ? 'Today' : 'Tomorrow';
             const weather = getWeather(dayData.day.condition.code);
+
+			/ 👇 ADD THIS
+            console.log('Mapped to:', weather.icon, weather.text);
 
             forecastData.push({
                 dayName: dayLabel,
@@ -2699,6 +2722,11 @@ async function fetchWeather() {
             });
         }
     }
+
+	// 👇 ADD THIS
+    console.log('\n=== FINAL DISPLAY DATA ===');
+    console.log(forecastData);
+    console.log('=== WEATHER DEBUG END ===\n');
 
     container.innerHTML = forecastData.map(f => `
         <div class="weather-day">
