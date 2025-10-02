@@ -2686,7 +2686,7 @@ async function fetchWeather() {
             const response = await fetch(url);
             const data = await response.json();
 
-			/ 👇 ADD THESE
+			// 👇 ADD THESE
             console.log('API Response received');
             console.log('Number of forecast days in response:', data.forecast.forecastday.length);
 			
@@ -2701,7 +2701,7 @@ async function fetchWeather() {
             const dayLabel = i === 0 ? 'Today' : 'Tomorrow';
             const weather = getWeather(dayData.day.condition.code);
 
-			/ 👇 ADD THIS
+			// 👇 ADD THIS
             console.log('Mapped to:', weather.icon, weather.text);
 
             forecastData.push({
