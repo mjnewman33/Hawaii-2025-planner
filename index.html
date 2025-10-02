@@ -2659,49 +2659,41 @@ async function fetchWeather() {
     const today = new Date();
     const forecastData = [];
 
-	// 👇 ADD THIS
     console.log('=== WEATHER DEBUG START ===');
     console.log('Fetching weather for date:', today.toISOString());
 
-    for (let i = 0; i < 2; i++) {
-        const dayDate = new Date(today);
-        dayDate.setDate(today.getDate() + i);
+    // Determine location ONCE
+    const transitionDate = new Date('2026-01-03');
+    const isMaui = today >= transitionDate;
+    const locationName = isMaui ? 'Maui' : 'Hawaii';
+    const location = isMaui 
+        ? { lat: 20.948861952330113, lon: -156.69071111349115 }
+        : { lat: 19.62574725596981, lon: -155.9844374558186 };
 
-        // Switch location: Hawaii until Jan 3, 2026, then Maui
-        const transitionDate = new Date('2026-01-03');
-        const isMaui = dayDate >= transitionDate;
-        const locationName = isMaui ? 'Maui' : 'Hawaii';
-        const location = isMaui 
-            ? { lat: 20.948861952330113, lon: -156.69071111349115 }  // Maui
-            : { lat: 19.62574725596981, lon: -155.9844374558186 };   // Hawaii
+    // Make ONE API call
+    const url = `https://api.weatherapi.com/v1/forecast.json?key=b13faaf5f20649ce88803731252908&q=${location.lat},${location.lon}&days=3`;
+    
+    console.log('API URL:', url);
 
-        const url = `https://api.weatherapi.com/v1/forecast.json?key=b13faaf5f20649ce88803731252908&q=${location.lat},${location.lon}&days=3`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        console.log('Full API response:', data);
+        console.log('Number of forecast days:', data.forecast.forecastday.length);
 
-		 // 👇 ADD THIS
-        console.log(`\n--- Day ${i} (${i === 0 ? 'Today' : 'Tomorrow'}) ---`);
-        console.log('Date:', dayDate.toDateString());
-        console.log('URL:', url);
-
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-
-			// 👇 ADD THESE
-            console.log('API Response received');
-            console.log('Number of forecast days in response:', data.forecast.forecastday.length);
-			
+        // Now loop through the days we want to display
+        for (let i = 0; i < 2; i++) {
             const dayData = data.forecast.forecastday[i];
-
-			 // 👇 ADD THESE - THE MOST IMPORTANT ONES!
-            console.log('Condition CODE:', dayData.day.condition.code);
-            console.log('Condition TEXT from API:', dayData.day.condition.text);
-            console.log('Max temp:', dayData.day.maxtemp_f);
-            console.log('Min temp:', dayData.day.mintemp_f);
-
             const dayLabel = i === 0 ? 'Today' : 'Tomorrow';
+            
+            console.log(`\n--- ${dayLabel} ---`);
+            console.log('Date from API:', dayData.date);
+            console.log('Condition CODE:', dayData.day.condition.code);
+            console.log('Condition TEXT:', dayData.day.condition.text);
+            console.log('Temps:', dayData.day.maxtemp_f, '/', dayData.day.mintemp_f);
+            
             const weather = getWeather(dayData.day.condition.code);
-
-			// 👇 ADD THIS
             console.log('Mapped to:', weather.icon, weather.text);
 
             forecastData.push({
@@ -2709,21 +2701,24 @@ async function fetchWeather() {
                 location: locationName,
                 icon: weather.icon,
                 condition: weather.text,
-                temp: `${dayData.day.maxtemp_f}° / ${dayData.day.mintemp_f}°`
+                temp: `${Math.round(dayData.day.maxtemp_f)}° / ${Math.round(dayData.day.mintemp_f)}°`
             });
-        } catch (err) {
-            console.error('Weather fetch failed:', err);
+        }
+        
+    } catch (err) {
+        console.error('Weather fetch failed:', err);
+        // Add fallback data
+        for (let i = 0; i < 2; i++) {
             forecastData.push({
                 dayName: i === 0 ? 'Today' : 'Tomorrow',
-                location: '--',
+                location: locationName,
                 icon: '❓',
-                condition: '--',
+                condition: 'Error loading',
                 temp: '--'
             });
         }
     }
 
-	// 👇 ADD THIS
     console.log('\n=== FINAL DISPLAY DATA ===');
     console.log(forecastData);
     console.log('=== WEATHER DEBUG END ===\n');
