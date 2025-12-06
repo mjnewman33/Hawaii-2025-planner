@@ -954,7 +954,18 @@ function toggleSchedule() {
                 scheduleContainer.appendChild(scheduleItem);
             });
         }
-
+               function formatNamesGrammatically(names) {
+    if (!names) return '';
+    const nameList = names.split(/\s*(?:and|&|,)\s*/).filter(n => n.trim().length > 0);
+    if (nameList.length === 1) {
+        return nameList[0];
+    } else if (nameList.length === 2) {
+        return nameList[0] + ' and ' + nameList[1];
+    } else {
+        return nameList.slice(0, -1).join(', ') + ' and ' + nameList[nameList.length - 1];
+    }
+}
+		
        function loadCalendar() {
     const container = document.getElementById('calendarEvents');
     container.innerHTML = '';
@@ -993,7 +1004,7 @@ function toggleSchedule() {
 });
     }
     
-    / INTER-ISLAND FLIGHTS (grouped by date with proper grammar)
+    // INTER-ISLAND FLIGHTS (grouped by date with proper grammar)
 if (tripData.interIslandFlights) {
     const interIslandByDate = {};
     tripData.interIslandFlights.forEach(function(flight) {
