@@ -192,6 +192,12 @@
 	<!-- ADD WEATHER WIDGET HERE -->
                 <div id="weatherContainer" class="mb-6">Loading weather...</div>
 
+		<div class="mb-6">
+    <button onclick="openNavigationModal()" class="w-full bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white px-6 py-4 rounded-2xl text-lg font-medium shadow-lg transition-colors flex items-center justify-center">
+        🗺️ Navigate to Locations
+    </button>
+</div>
+
         <!-- General Timeline -->
         <div class="bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-100 rounded-3xl border-2 border-emerald-200/50 p-6 shadow-xl">
             <h2 class="text-lg font-semibold text-gray-900 mb-4">General Timeline</h2>
@@ -311,17 +317,20 @@ function toggleSchedule() {
                             Add Experience
                         </button>
                     </div>
-                    
-                    <div class="bg-gradient-to-r from-cyan-100/80 to-blue-100/80 rounded-3xl p-1">
-                        <div class="grid grid-cols-2 gap-1">
-                            <button onclick="setExperienceSubTab('activities')" id="activitiesSubTab" class="py-2 px-4 rounded-2xl text-sm font-medium transition-colors bg-white text-blue-600 shadow-sm">
-                                Activities
-                            </button>
-                            <button onclick="setExperienceSubTab('dining')" id="diningSubTab" class="py-2 px-4 rounded-2xl text-sm font-medium transition-colors text-gray-600 hover:text-gray-900">
-                                Dining
-                            </button>
-                        </div>
-                    </div>
+
+				<div class="bg-gradient-to-r from-cyan-100/80 to-blue-100/80 rounded-3xl p-1">
+                    <div class="grid grid-cols-3 gap-1">
+                        <button onclick="setExperienceSubTab('activities')" id="activitiesSubTab" class="py-2 px-4 rounded-2xl text-sm font-medium transition-colors bg-white text-blue-600 shadow-sm">
+                            Activities
+                        </button>
+                        <button onclick="setExperienceSubTab('dining')" id="diningSubTab" class="py-2 px-4 rounded-2xl text-sm font-medium transition-colors text-gray-600 hover:text-gray-900">
+                            Dining
+                       </button>
+                       <button onclick="setExperienceSubTab('notes')" id="notesSubTab" class="py-2 px-4 rounded-2xl text-sm font-medium transition-colors text-gray-600 hover:text-gray-900">
+                           Notes
+                       </button>
+                   </div>
+               </div>	
 
                     <div id="experienceContent"></div>
                 </div>
@@ -474,6 +483,191 @@ function toggleSchedule() {
     </div>
 </div>
 
+<!-- Navigation Modal -->
+<div id="navigationModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 hidden">
+    <div class="bg-gradient-to-br from-cyan-50 to-blue-100 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-cyan-200">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">🗺️ Navigate To Locations</h3>
+                <button onclick="closeNavigationModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="navigationContent">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+		// ADD navigation functions:
+function openNavigationModal() {
+    const modal = document.getElementById('navigationModal');
+    loadNavigationContent();
+    modal.classList.remove('hidden');
+}
+
+function closeNavigationModal() {
+    const modal = document.getElementById('navigationModal');
+    modal.classList.add('hidden');
+}
+
+function loadNavigationContent() {
+    const container = document.getElementById('navigationContent');
+    
+    // Hard-coded location data
+    const locations = {
+        hawaii: [
+            {
+                name: 'Pacific 19 Kona',
+                address: '75-5646 Palani Rd, Kailua-Kona, HI 96740',
+                type: 'Hotel'
+            },
+            {
+                name: 'Kona Airport (KOA)',
+                address: '73-200 Kupipi St, Kailua-Kona, HI 96740',
+                type: 'Airport'
+            }
+        ],
+        maui: [
+            {
+                name: 'Hilton Ka\'anapali Beach Maui',
+                address: '104 Ka\'anapali Shores Place, Lahaina, HI 96761',
+                type: 'Hotel'
+            },
+            {
+                name: 'Maui Airport (OGG)',
+                address: '1 Kahului Airport Rd, Kahului, HI 96732',
+                type: 'Airport'
+            }
+        ]
+    };
+    
+    // Add activities and dining with addresses
+    const activitiesWithAddress = (tripData.activities || []).filter(a => a.address);
+    const diningWithAddress = (tripData.dining || []).filter(d => d.address);
+    
+    // Group by location
+    activitiesWithAddress.forEach(activity => {
+        if (activity.place === 'Hawaii') {
+            locations.hawaii.push({
+                name: activity.name,
+                address: activity.address,
+                type: 'Activity'
+            });
+        } else if (activity.place === 'Maui') {
+            locations.maui.push({
+                name: activity.name,
+                address: activity.address,
+                type: 'Activity'
+            });
+        }
+    });
+    
+    diningWithAddress.forEach(dining => {
+        if (dining.island === 'Hawaii') {
+            locations.hawaii.push({
+                name: dining.name,
+                address: dining.address,
+                type: 'Restaurant'
+            });
+        } else if (dining.island === 'Maui') {
+            locations.maui.push({
+                name: dining.name,
+                address: dining.address,
+                type: 'Restaurant'
+            });
+        }
+    });
+    
+    // Generate HTML
+    let html = '';
+    
+    // Hawaii section
+    html += '<div class="mb-8">';
+    html += '<h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">';
+    html += '<span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm mr-3">Hawaii</span>';
+    html += 'Big Island Locations';
+    html += '</h4>';
+    html += '<div class="space-y-4">';
+    
+    locations.hawaii.forEach(location => {
+        html += createLocationCard(location);
+    });
+    
+    html += '</div></div>';
+    
+    // Maui section
+    html += '<div>';
+    html += '<h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">';
+    html += '<span class="bg-orange-500 text-white px-3 py-1 rounded-full text-sm mr-3">Maui</span>';
+    html += 'Maui Locations';
+    html += '</h4>';
+    html += '<div class="space-y-4">';
+    
+    locations.maui.forEach(location => {
+        html += createLocationCard(location);
+    });
+    
+    html += '</div></div>';
+    
+    container.innerHTML = html;
+}
+
+function createLocationCard(location) {
+    return `
+        <div class="bg-white/80 rounded-2xl p-4 shadow-lg border border-cyan-200">
+            <div class="flex items-start justify-between mb-3">
+                <div>
+                    <h5 class="font-bold text-gray-900">${location.name}</h5>
+                    <p class="text-sm text-gray-600">${location.type}</p>
+                </div>
+                <span class="text-2xl">${getLocationIcon(location.type)}</span>
+            </div>
+            <p class="text-sm text-gray-700 mb-4">${location.address}</p>
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="openGoogleMaps('${encodeURIComponent(location.address)}')" 
+                        class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 rounded-xl text-sm font-medium transition-colors">
+                    🗺️ Google
+                </button>
+                <button onclick="openWaze('${encodeURIComponent(location.address)}')" 
+                        class="bg-cyan-500 hover:bg-cyan-600 text-white py-2 px-3 rounded-xl text-sm font-medium transition-colors">
+                    🚗 Waze
+                </button>
+                <button onclick="openAppleMaps('${encodeURIComponent(location.address)}')" 
+                        class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-3 rounded-xl text-sm font-medium transition-colors">
+                    🍎 Apple
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function getLocationIcon(type) {
+    switch(type) {
+        case 'Hotel': return '🏨';
+        case 'Airport': return '✈️';
+        case 'Activity': return '🌺';
+        case 'Restaurant': return '🍽️';
+        default: return '📍';
+    }
+}
+
+function openGoogleMaps(address) {
+    window.open(`https://maps.google.com/?q=${address}`, '_blank');
+}
+
+function openWaze(address) {
+    window.open(`https://waze.com/ul?q=${address}`, '_blank');
+}
+
+function openAppleMaps(address) {
+    window.open(`http://maps.apple.com/?q=${address}`, '_blank');
+}
+
         <!-- Bottom Navigation -->
         <div class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t-2 border-cyan-200/50 shadow-2xl z-50">
             <div class="grid grid-cols-3 gap-1">
@@ -546,7 +740,8 @@ function toggleSchedule() {
             maui: [],
             departures: [],
             activities: [],
-            dining: []
+            dining: [],
+			calendarNotes: []
         };
 
         // API Functions
@@ -837,7 +1032,7 @@ function toggleSchedule() {
         function setExperienceSubTab(subTab) {
             currentExperienceSubTab = subTab;
             
-            const experienceTabs = ['activitiesSubTab', 'diningSubTab'];
+            const experienceTabs = ['activitiesSubTab', 'diningSubTab', 'notesSubTab'];
             experienceTabs.forEach(function(tabId) {
                 const tab = document.getElementById(tabId);
                 if (tab) {
@@ -847,7 +1042,8 @@ function toggleSchedule() {
             
             const activeTabMap = {
                 'activities': 'activitiesSubTab',
-                'dining': 'diningSubTab'
+                'dining': 'diningSubTab',
+                'notes': 'notesSubTab'
             };
             
             const activeTab = document.getElementById(activeTabMap[subTab]);
@@ -861,13 +1057,16 @@ function toggleSchedule() {
         function loadExperienceContent(subTab) {
             const container = document.getElementById('experienceContent');
             container.innerHTML = '';
-            
+    
             if (subTab === 'activities') {
                 loadActivities();
             } else if (subTab === 'dining') {
                 loadDining();
+            } else if (subTab === 'notes') {
+                loadNotes();
             }
         }
+		
         function loadTabContent(tab) {
             switch (tab) {
                 case 'dashboard':
@@ -921,135 +1120,316 @@ function toggleSchedule() {
             });
         }
 
-        function loadCalendar() {
-            const container = document.getElementById('calendarEvents');
-            container.innerHTML = '';
-            
-            const events = [];
-            
-            if (tripData.arrivals) {
-                tripData.arrivals.forEach(function(flight) {
-                    if (flight.date) {
-                        events.push({
-                            date: flight.date,
-                            time: flight.arrivalTime,
-                            title: flight.names + ' Arrival',
-                            subtitle: flight.airline + ' ' + flight.flightNumber + ' → ' + flight.destination,
-                            type: 'arrival',
-                            icon: '✈️',
-                            color: 'bg-blue-500'
-                        });
-                    }
-                });
-            }
-            
-            if (tripData.interIslandFlights) {
-                tripData.interIslandFlights.forEach(function(flight) {
-                    if (flight.date) {
-                        events.push({
-                            date: flight.date,
-                            time: flight.departure,
-                            title: flight.names + ' Inter-Island Flight',
-                            subtitle: flight.departureAirport + ' → ' + flight.arrivalAirport + ' (' + flight.airline + ' ' + flight.flightNumber + ')',
-                            type: 'inter-island',
-                            icon: '🏝️',
-                            color: 'bg-orange-500'
-                        });
-                    }
-                });
-            }
-            
-            if (tripData.departures) {
-                tripData.departures.forEach(function(flight) {
-                    if (flight.date) {
-                        events.push({
-                            date: flight.date,
-                            time: flight.departureTime,
-                            title: flight.names + ' Departure',
-                            subtitle: flight.airline + ' ' + flight.flightNumber,
-                            type: 'departure',
-                            icon: '🛫',
-                            color: 'bg-red-500'
-                        });
-                    }
-                });
-            }
-            
-            if (tripData.activities) {
-                tripData.activities.forEach(function(activity) {
-                    if (activity.dates) {
-                        events.push({
-                            date: activity.dates,
-                            time: activity.time,
-                            title: activity.name,
-                            subtitle: activity.place + ' • ' + activity.type,
-                            type: 'activity',
-                            icon: '🌺',
-                            color: 'bg-purple-500'
-                        });
-                    }
-                });
-            }
-            
-            events.sort(function(a, b) {
-                const dateA = new Date(a.date + ' ' + (a.time || '00:00'));
-                const dateB = new Date(b.date + ' ' + (b.time || '00:00'));
-                return dateA - dateB;
-            });
-            
-            if (events.length === 0) {
-                container.innerHTML = '<div class="text-center py-8 text-gray-500">No scheduled events found</div>';
-                return;
-            }
-            
-            const eventsByDate = {};
-            events.forEach(function(event) {
-                const date = event.date;
-                if (!eventsByDate[date]) {
-                    eventsByDate[date] = [];
+       function loadCalendar() {
+    const container = document.getElementById('calendarEvents');
+    container.innerHTML = '';
+    
+    const events = [];
+    
+    // GROUP FLIGHTS BY DATE (updated section)
+    if (tripData.arrivals) {
+        const arrivalsByDate = {};
+        tripData.arrivals.forEach(function(flight) {
+            if (flight.date) {
+                if (!arrivalsByDate[flight.date]) {
+                    arrivalsByDate[flight.date] = [];
                 }
-                eventsByDate[date].push(event);
-            });
+                arrivalsByDate[flight.date].push(flight);
+            }
+        });
+        
+        Object.keys(arrivalsByDate).forEach(function(date) {
+            const flightsOnDate = arrivalsByDate[date];
+            const coupleNames = flightsOnDate.map(f => f.names).join(', ');
+            const firstFlight = flightsOnDate[0];
             
-            Object.keys(eventsByDate).forEach(function(date) {
-                const dateEvents = eventsByDate[date];
-                
-                const dateSection = document.createElement('div');
-                dateSection.className = 'mb-6';
-                
-                const dateHeader = document.createElement('div');
-                dateHeader.className = 'flex items-center mb-3';
-                dateHeader.innerHTML = 
-                    '<div class="w-3 h-3 bg-cyan-500 rounded-full mr-3"></div>' +
-                    '<h3 class="text-lg font-semibold text-gray-900">' + formatDate(date) + '</h3>';
-                
-                dateSection.appendChild(dateHeader);
-                
-                dateEvents.forEach(function(event) {
-                    const eventCard = document.createElement('div');
-                    eventCard.className = 'bg-white/80 rounded-xl p-4 mb-3 border-l-4 border-cyan-500';
-                    
-                    eventCard.innerHTML = 
-                        '<div class="flex items-center justify-between">' +
-                            '<div class="flex items-center space-x-3">' +
-                                '<div class="p-2 ' + event.color + ' rounded-xl text-white text-lg">' + event.icon + '</div>' +
-                                '<div>' +
-                                    '<h4 class="font-semibold text-gray-900">' + event.title + '</h4>' +
-                                    '<p class="text-sm text-gray-600">' + event.subtitle + '</p>' +
-                                '</div>' +
-                            '</div>' +
-                            '<div class="text-right">' +
-                                '<div class="text-sm font-medium text-gray-900">' + (event.time ? formatTime(event.time) : 'All Day') + '</div>' +
-                                '<div class="text-xs text-gray-500 capitalize">' + event.type.replace('-', ' ') + '</div>' +
-                            '</div>' +
-                        '</div>';
-                    
-                    dateSection.appendChild(eventCard);
-                });
-                
-                container.appendChild(dateSection);
+            events.push({
+                date: date,
+                time: firstFlight.arrivalTime,
+                title: coupleNames + ' Arrival',
+                subtitle: firstFlight.airline + ' ' + firstFlight.flightNumber + ' → ' + firstFlight.destination,
+                type: 'arrival',
+                icon: '✈️',
+                color: 'bg-blue-500',
+                clickable: true,
+                clickAction: 'flights-arrivals'
             });
+        });
+    }
+    
+    // INTER-ISLAND FLIGHTS (updated with clickable)
+    if (tripData.interIslandFlights) {
+        tripData.interIslandFlights.forEach(function(flight) {
+            if (flight.date) {
+                events.push({
+                    date: flight.date,
+                    time: flight.departure,
+                    title: flight.names + ' Inter-Island Flight',
+                    subtitle: flight.departureAirport + ' → ' + flight.arrivalAirport + ' (' + flight.airline + ' ' + flight.flightNumber + ')',
+                    type: 'inter-island',
+                    icon: '🏝️',
+                    color: 'bg-orange-500',
+                    clickable: true,
+                    clickAction: 'flights-inter-island'
+                });
+            }
+        });
+    }
+    
+    // DEPARTURES (updated with clickable)
+    if (tripData.departures) {
+        tripData.departures.forEach(function(flight) {
+            if (flight.date) {
+                events.push({
+                    date: flight.date,
+                    time: flight.departureTime,
+                    title: flight.names + ' Departure',
+                    subtitle: flight.airline + ' ' + flight.flightNumber,
+                    type: 'departure',
+                    icon: '🛫',
+                    color: 'bg-red-500',
+                    clickable: true,
+                    clickAction: 'flights-departures'
+                });
+            }
+        });
+    }
+    
+    // HARD-CODED HOTEL EVENTS (new section)
+    events.push({
+        date: '2025-12-29',
+        time: null,
+        title: 'Check-in: Pacific 19 Kona',
+        subtitle: 'Hotel accommodation for all couples',
+        type: 'hotel',
+        icon: '🏨',
+        color: 'bg-green-500',
+        clickable: true,
+        clickAction: 'website',
+        url: 'https://pacific19.com/kona/'
+    });
+    
+    events.push({
+        date: '2026-01-03',
+        time: null,
+        title: 'Check-out: Pacific 19 Kona',
+        subtitle: 'End of Big Island stay',
+        type: 'hotel',
+        icon: '🏨',
+        color: 'bg-green-500',
+        clickable: false
+    });
+    
+    events.push({
+        date: '2026-01-03',
+        time: '14:00',
+        title: 'Check-in: Hilton Ka\'anapali Beach Maui',
+        subtitle: 'Maui accommodation for all couples',
+        type: 'hotel',
+        icon: '🏨',
+        color: 'bg-green-500',
+        clickable: true,
+        clickAction: 'website',
+        url: 'https://www.hilton.com/en/hotels/jhmkagv-hilton-vacation-club-kaanapali-beach-maui/'
+    });
+    
+    events.push({
+        date: '2026-01-08',
+        time: null,
+        title: 'Check-out: Hilton Ka\'anapali Beach Maui',
+        subtitle: 'End of Maui stay',
+        type: 'hotel',
+        icon: '🏨',
+        color: 'bg-green-500',
+        clickable: false
+    });
+    
+    // ACTIVITIES WITH NOTES (updated section)
+    if (tripData.activities) {
+        tripData.activities.forEach(function(activity) {
+            if (activity.dates) {
+                let subtitle = activity.place + ' • ' + activity.type;
+                if (activity.notes && activity.notes.trim() !== '') {
+                    subtitle += ' • Notes: ' + activity.notes;
+                }
+                
+                events.push({
+                    date: activity.dates,
+                    time: activity.time,
+                    title: activity.name,
+                    subtitle: subtitle,
+                    type: 'activity',
+                    icon: '🌺',
+                    color: 'bg-purple-500',
+                    clickable: true,
+                    clickAction: activity.link ? 'website' : 'tab',
+                    url: activity.link,
+                    tabTarget: 'experiences-activities'
+                });
+            }
+        });
+    }
+    
+    // CONFIRMED/BOOKED DINING WITH NOTES (new section)
+    if (tripData.dining) {
+        tripData.dining.forEach(function(dining) {
+            if (dining.status === 'Confirmed' || dining.status === 'Booked') {
+                let eventDate;
+                if (dining.island === 'Hawaii') {
+                    eventDate = '2026-01-02'; // Last day of Hawaii stay
+                } else if (dining.island === 'Maui') {
+                    eventDate = '2026-01-07'; // Last day of Maui stay
+                }
+                
+                if (eventDate) {
+                    let subtitle = dining.type + ' • ' + dining.island;
+                    if (dining.notes && dining.notes.trim() !== '') {
+                        subtitle += ' • Notes: ' + dining.notes;
+                    }
+                    
+                    events.push({
+                        date: eventDate,
+                        time: '20:00', // Evening time for positioning
+                        title: dining.name,
+                        subtitle: subtitle,
+                        type: 'dining',
+                        icon: '🍽️',
+                        color: 'bg-purple-500',
+                        clickable: true,
+                        clickAction: dining.website ? 'website' : 'tab',
+                        url: dining.website,
+                        tabTarget: 'experiences-dining'
+                    });
+                }
+            }
+        });
+    }
+    
+    // CALENDAR NOTES (new section)
+    if (tripData.calendarNotes) {
+        tripData.calendarNotes.forEach(function(note) {
+            if (note.date) {
+                events.push({
+                    date: note.date,
+                    time: '23:59', // End of day for positioning
+                    title: 'Note',
+                    subtitle: note.note,
+                    type: 'note',
+                    icon: '📝',
+                    color: 'bg-yellow-500',
+                    clickable: true,
+                    clickAction: 'tab',
+                    tabTarget: 'experiences-notes'
+                });
+            }
+        });
+    }
+    
+    // SORT EVENTS (updated sorting)
+    events.sort(function(a, b) {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        
+        if (dateA.getTime() !== dateB.getTime()) {
+            return dateA - dateB;
         }
+        
+        // Sort by time within the same date
+        const timeA = a.time ? a.time : (a.type === 'note' ? '23:59' : '00:00');
+        const timeB = b.time ? b.time : (b.type === 'note' ? '23:59' : '00:00');
+        
+        return timeA.localeCompare(timeB);
+    });
+    
+    if (events.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-gray-500">No scheduled events found</div>';
+        return;
+    }
+    
+    const eventsByDate = {};
+    events.forEach(function(event) {
+        const date = event.date;
+        if (!eventsByDate[date]) {
+            eventsByDate[date] = [];
+        }
+        eventsByDate[date].push(event);
+    });
+    
+    // RENDER EVENTS (updated with clickable support)
+    Object.keys(eventsByDate).forEach(function(date) {
+        const dateEvents = eventsByDate[date];
+        
+        const dateSection = document.createElement('div');
+        dateSection.className = 'mb-6';
+        
+        const dateHeader = document.createElement('div');
+        dateHeader.className = 'flex items-center mb-3';
+        dateHeader.innerHTML = 
+            '<div class="w-3 h-3 bg-cyan-500 rounded-full mr-3"></div>' +
+            '<h3 class="text-lg font-semibold text-gray-900">' + formatDate(date) + '</h3>';
+        
+        dateSection.appendChild(dateHeader);
+        
+        dateEvents.forEach(function(event) {
+            const eventCard = document.createElement('div');
+            eventCard.className = 'bg-white/80 rounded-xl p-4 mb-3 border-l-4 border-cyan-500';
+            
+            // Add clickable styling and handler
+            if (event.clickable) {
+                eventCard.className += ' cursor-pointer hover:bg-white/90 transition-colors';
+                eventCard.addEventListener('click', function() {
+                    handleCalendarEventClick(event);
+                });
+            }
+            
+            eventCard.innerHTML = 
+                '<div class="flex items-center justify-between">' +
+                    '<div class="flex items-center space-x-3">' +
+                        '<div class="p-2 ' + event.color + ' rounded-xl text-white text-lg">' + event.icon + '</div>' +
+                        '<div>' +
+                            '<h4 class="font-semibold text-gray-900">' + event.title + '</h4>' +
+                            '<p class="text-sm text-gray-600">' + event.subtitle + '</p>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="text-right">' +
+                        '<div class="text-sm font-medium text-gray-900">' + 
+                            (event.time && event.type !== 'note' ? formatTime(event.time) : 'All Day') + 
+                        '</div>' +
+                        '<div class="text-xs text-gray-500 capitalize">' + event.type.replace('-', ' ') + '</div>' +
+                    '</div>' +
+                '</div>';
+            
+            dateSection.appendChild(eventCard);
+        });
+        
+        container.appendChild(dateSection);
+    });
+}
+
+		function handleCalendarEventClick(event) {
+    if (event.clickAction === 'website' && event.url) {
+        window.open(event.url, '_blank');
+    } else if (event.clickAction === 'tab' && event.tabTarget) {
+        if (event.tabTarget.startsWith('flights-')) {
+            setActiveTab('flights');
+            const subTab = event.tabTarget.split('-')[1];
+            setFlightSubTab(subTab);
+        } else if (event.tabTarget.startsWith('experiences-')) {
+            setActiveTab('experiences');
+            const subTab = event.tabTarget.split('-')[1];
+            setExperienceSubTab(subTab);
+        }
+    } else if (event.clickAction === 'flights-arrivals') {
+        setActiveTab('flights');
+        setFlightSubTab('arrivals');
+    } else if (event.clickAction === 'flights-inter-island') {
+        setActiveTab('flights');
+        setFlightSubTab('inter-island');
+    } else if (event.clickAction === 'flights-departures') {
+        setActiveTab('flights');
+        setFlightSubTab('departures');
+    }
+}
 
         function loadFlightContent(subTab) {
             const container = document.getElementById('flightContent');
@@ -1231,6 +1611,149 @@ function toggleSchedule() {
             });
         }
 
+		// ADD new notes management functions:
+function loadNotes() {
+    const container = document.getElementById('experienceContent');
+    container.innerHTML = '';
+    
+    // Add note form
+    const noteForm = document.createElement('div');
+    noteForm.className = 'bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100 rounded-3xl border-2 border-gray-200/50 p-6 mb-6 shadow-xl';
+    noteForm.innerHTML = `
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Add Trip Note</h3>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                <input type="date" id="noteDate" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Note</label>
+                <textarea id="noteText" rows="3" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" placeholder="Enter your trip note..."></textarea>
+            </div>
+            <button onclick="saveNewNote()" class="w-full bg-gradient-to-r from-emerald-400 to-teal-500 text-white py-3 rounded-2xl font-medium hover:from-emerald-500 hover:to-teal-600">
+                Add Note
+            </button>
+        </div>
+    `;
+    container.appendChild(noteForm);
+    
+    // Show existing notes
+    if (!tripData.calendarNotes || tripData.calendarNotes.length === 0) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'text-center py-8 text-gray-500';
+        emptyState.textContent = 'No trip notes yet. Add one above!';
+        container.appendChild(emptyState);
+        return;
+    }
+    
+    // Sort notes by date
+    const sortedNotes = tripData.calendarNotes.slice().sort(function(a, b) {
+        return new Date(a.date) - new Date(b.date);
+    });
+    
+    sortedNotes.forEach(function(note) {
+        const noteCard = createNoteCard(note);
+        container.appendChild(noteCard);
+    });
+}
+
+function createNoteCard(note) {
+    const card = document.createElement('div');
+    card.className = 'bg-gradient-to-br from-yellow-50 via-orange-50 to-red-100 rounded-3xl border-2 border-yellow-200/50 p-6 mb-4 shadow-xl';
+    
+    card.innerHTML = `
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-3">
+                <div class="p-3 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl text-white text-2xl">📝</div>
+                <div>
+                    <h4 class="font-bold text-xl text-gray-900">Trip Note</h4>
+                    <p class="text-yellow-600 font-medium">${formatDate(note.date)}</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="editNote(${note.id})" class="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-xl text-white transition-colors shadow-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                </button>
+                <button onclick="deleteNote(${note.id})" class="p-3 bg-gradient-to-br from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 rounded-xl text-white transition-colors shadow-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="text-sm text-gray-700 bg-white/80 rounded-xl p-3">
+            ${note.note}
+        </div>
+    `;
+    
+    return card;
+}
+
+async function saveNewNote() {
+    const date = document.getElementById('noteDate').value;
+    const noteText = document.getElementById('noteText').value;
+    
+    if (!date || !noteText.trim()) {
+        alert('Please fill in both date and note fields.');
+        return;
+    }
+    
+    try {
+        const maxId = tripData.calendarNotes ? Math.max(...tripData.calendarNotes.map(n => n.id), 0) : 0;
+        const newNote = {
+            id: maxId + 1,
+            date: date,
+            note: noteText.trim()
+        };
+        
+        // Save to backend
+        await saveItemToAPI('calendarNotes', newNote, 'add');
+        
+        // Update local data
+        if (!tripData.calendarNotes) tripData.calendarNotes = [];
+        tripData.calendarNotes.push(newNote);
+        
+        // Clear form and reload
+        document.getElementById('noteDate').value = '';
+        document.getElementById('noteText').value = '';
+        loadNotes();
+        
+        alert('Note added successfully!');
+        
+    } catch (error) {
+        console.error('Error saving note:', error);
+        alert('Failed to save note: ' + error.message);
+    }
+}
+
+async function deleteNote(noteId) {
+    if (confirm('Are you sure you want to delete this note?')) {
+        try {
+            await deleteItemFromAPI('calendarNotes', noteId);
+            
+            tripData.calendarNotes = tripData.calendarNotes.filter(n => n.id !== noteId);
+            loadNotes();
+            
+            alert('Note deleted successfully!');
+            
+        } catch (error) {
+            console.error('Error deleting note:', error);
+            alert('Failed to delete note: ' + error.message);
+        }
+    }
+}
+
+function editNote(noteId) {
+    const note = tripData.calendarNotes.find(n => n.id === noteId);
+    if (note) {
+        currentEditingItem = Object.assign({}, note);
+        currentEditingType = 'calendarNotes';
+        openEditModal(note, 'calendarNotes');
+    }
+}
+		
         function createDiningCard(dining) {
             const card = document.createElement('div');
             card.className = 'bg-gradient-to-br from-purple-50 via-pink-50 to-rose-100 rounded-3xl border-2 border-purple-200/50 p-6 mb-4 shadow-xl';
@@ -1948,12 +2471,30 @@ function toggleSchedule() {
         }
 
         function addNewExperience() {
-            if (currentExperienceSubTab === 'activities') {
-                addNewActivity();
-            } else if (currentExperienceSubTab === 'dining') {
-                addNewDining();
-            }
-        }
+    if (currentExperienceSubTab === 'activities') {
+        addNewActivity();
+    } else if (currentExperienceSubTab === 'dining') {
+        addNewDining();
+    } else if (currentExperienceSubTab === 'notes') {
+        addNewNote();  // ADD THIS LINE
+    }
+}
+
+		function addNewNote() {
+    const maxId = tripData.calendarNotes.length > 0 ? 
+        Math.max.apply(Math, tripData.calendarNotes.map(function(item) { return item.id; })) : 0;
+    const newId = maxId + 1;
+    
+    const newItem = { 
+        id: newId, 
+        date: '', 
+        note: ''
+    };
+    
+    currentEditingItem = newItem;
+    currentEditingType = 'calendarNotes';
+    openEditModal(newItem, 'calendarNotes');
+}
 
         function addNewActivity() {
             const maxId = tripData.activities.length > 0 ? Math.max.apply(Math, tripData.activities.map(function(item) { return item.id; })) : 0;
@@ -2158,6 +2699,8 @@ function toggleSchedule() {
                     return generateActivitiesForm(item);
                 case 'dining':
                     return generateDiningForm(item);
+				case 'calendarNotes':
+                    return generateNotesForm(item);	
                 default:
                     return '';
             }
@@ -2407,6 +2950,11 @@ function toggleSchedule() {
                         '<input name="link" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.link || '') + '">' +
                     '</div>' +
                     '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Address/Location</label>' +
+                        '<input name="address" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" ' +
+                        'placeholder="Street address, city, state, zip" value="' + (item.address || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
                         '<label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>' +
                         '<textarea name="notes" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" rows="3" placeholder="Available dates, special instructions, etc.">' + (item.notes || '') + '</textarea>' +
                     '</div>' +
@@ -2457,6 +3005,11 @@ function toggleSchedule() {
                         '<input name="website" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.website || '') + '">' +
                     '</div>' +
                     '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Address/Location</label>' +
+                        '<input name="address" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" ' +
+                        'placeholder="Street address, city, state, zip" value="' + (item.address || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
                         '<label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>' +
                         '<textarea name="notes" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" rows="3" placeholder="Hours, reservation notes, special offers, etc.">' + (item.notes || '') + '</textarea>' +
                     '</div>' +
@@ -2465,6 +3018,17 @@ function toggleSchedule() {
                         '<div class="grid grid-cols-2 gap-1">' +
                             participantCheckboxes +
                         '</div>' +
+                    '</div>';
+        }
+
+        function generateNotesForm(item) {
+            return '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Date</label>' +
+                        '<input name="date" type="date" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.date || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Note</label>' +
+                        '<textarea name="note" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" rows="4" placeholder="Enter your trip note...">' + (item.note || '') + '</textarea>' +
                     '</div>';
         }
 
