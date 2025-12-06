@@ -974,61 +974,88 @@ function toggleSchedule() {
         });
         
         Object.keys(arrivalsByDate).forEach(function(date) {
-            const flightsOnDate = arrivalsByDate[date];
-            const coupleNames = flightsOnDate.map(f => f.names).join(', ');
-            const firstFlight = flightsOnDate[0];
-            
-            events.push({
-                date: date,
-                time: firstFlight.arrivalTime,
-                title: coupleNames + ' Arrival',
-                subtitle: firstFlight.airline + ' ' + firstFlight.flightNumber + ' → ' + firstFlight.destination,
-                type: 'arrival',
-                icon: '✈️',
-                color: 'bg-blue-500',
-                clickable: true,
-                clickAction: 'flights-arrivals'
-            });
-        });
+    const flightsOnDate = arrivalsByDate[date];
+    const coupleNames = flightsOnDate.map(f => f.names).join(', ');
+    const formattedNames = formatNamesGrammatically(coupleNames);
+    const firstFlight = flightsOnDate[0];
+    
+    events.push({
+        date: date,
+        time: firstFlight.arrivalTime,
+        title: formattedNames + ' Arrival',
+        subtitle: firstFlight.airline + ' ' + firstFlight.flightNumber + ' → ' + firstFlight.destination,
+        type: 'arrival',
+        icon: '✈️',
+        color: 'bg-blue-500',
+        clickable: true,
+        clickAction: 'flights-arrivals'
+    });
+});
     }
     
-    // INTER-ISLAND FLIGHTS (updated with clickable)
-    if (tripData.interIslandFlights) {
-        tripData.interIslandFlights.forEach(function(flight) {
-            if (flight.date) {
-                events.push({
-                    date: flight.date,
-                    time: flight.departure,
-                    title: flight.names + ' Inter-Island Flight',
-                    subtitle: flight.departureAirport + ' → ' + flight.arrivalAirport + ' (' + flight.airline + ' ' + flight.flightNumber + ')',
-                    type: 'inter-island',
-                    icon: '🏝️',
-                    color: 'bg-orange-500',
-                    clickable: true,
-                    clickAction: 'flights-inter-island'
-                });
+    / INTER-ISLAND FLIGHTS (grouped by date with proper grammar)
+if (tripData.interIslandFlights) {
+    const interIslandByDate = {};
+    tripData.interIslandFlights.forEach(function(flight) {
+        if (flight.date) {
+            if (!interIslandByDate[flight.date]) {
+                interIslandByDate[flight.date] = [];
             }
-        });
-    }
+            interIslandByDate[flight.date].push(flight);
+        }
+    });
     
-    // DEPARTURES (updated with clickable)
-    if (tripData.departures) {
-        tripData.departures.forEach(function(flight) {
-            if (flight.date) {
-                events.push({
-                    date: flight.date,
-                    time: flight.departureTime,
-                    title: flight.names + ' Departure',
-                    subtitle: flight.airline + ' ' + flight.flightNumber,
-                    type: 'departure',
-                    icon: '🛫',
-                    color: 'bg-red-500',
-                    clickable: true,
-                    clickAction: 'flights-departures'
-                });
-            }
+    Object.keys(interIslandByDate).forEach(function(date) {
+        const flightsOnDate = interIslandByDate[date];
+        const coupleNames = flightsOnDate.map(f => f.names).join(', ');
+        const formattedNames = formatNamesGrammatically(coupleNames);
+        const firstFlight = flightsOnDate[0];
+        
+        events.push({
+            date: date,
+            time: firstFlight.departure,
+            title: formattedNames + ' Inter-Island Flight',
+            subtitle: firstFlight.departureAirport + ' → ' + firstFlight.arrivalAirport + ' (' + firstFlight.airline + ' ' + firstFlight.flightNumber + ')',
+            type: 'inter-island',
+            icon: '🏝️',
+            color: 'bg-orange-500',
+            clickable: true,
+            clickAction: 'flights-inter-island'
         });
-    }
+    });
+}
+    
+    // DEPARTURES (grouped by date with proper grammar)
+if (tripData.departures) {
+    const departuresByDate = {};
+    tripData.departures.forEach(function(flight) {
+        if (flight.date) {
+            if (!departuresByDate[flight.date]) {
+                departuresByDate[flight.date] = [];
+            }
+            departuresByDate[flight.date].push(flight);
+        }
+    });
+    
+    Object.keys(departuresByDate).forEach(function(date) {
+        const flightsOnDate = departuresByDate[date];
+        const coupleNames = flightsOnDate.map(f => f.names).join(', ');
+        const formattedNames = formatNamesGrammatically(coupleNames);
+        const firstFlight = flightsOnDate[0];
+        
+        events.push({
+            date: date,
+            time: firstFlight.departureTime,
+            title: formattedNames + ' Departure',
+            subtitle: firstFlight.airline + ' ' + firstFlight.flightNumber,
+            type: 'departure',
+            icon: '🛫',
+            color: 'bg-red-500',
+            clickable: true,
+            clickAction: 'flights-departures'
+        });
+    });
+}
     
     // HARD-CODED HOTEL EVENTS (new section)
     events.push({
@@ -1218,21 +1245,20 @@ function toggleSchedule() {
             }
             
             eventCard.innerHTML = 
-                '<div class="flex items-center justify-between">' +
-                    '<div class="flex items-center space-x-3">' +
-                        '<div class="p-2 ' + event.color + ' rounded-xl text-white text-lg">' + event.icon + '</div>' +
-                        '<div>' +
-                            '<h4 class="font-semibold text-gray-900">' + event.title + '</h4>' +
-                            '<p class="text-sm text-gray-600">' + event.subtitle + '</p>' +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="text-right">' +
-                        '<div class="text-sm font-medium text-gray-900">' + 
-                            (event.time && event.type !== 'note' ? formatTime(event.time) : 'All Day') + 
-                        '</div>' +
-                        '<div class="text-xs text-gray-500 capitalize">' + event.type.replace('-', ' ') + '</div>' +
-                    '</div>' +
-                '</div>';
+    '<div class="flex items-center justify-between">' +
+        '<div class="flex items-center space-x-3">' +
+            '<div class="p-2 ' + event.color + ' rounded-xl text-white text-lg">' + event.icon + '</div>' +
+            '<div>' +
+                '<h4 class="font-semibold text-gray-900">' + event.title + '</h4>' +
+                '<p class="text-sm text-gray-600">' + event.subtitle + '</p>' +
+            '</div>' +
+        '</div>' +
+        '<div class="text-right">' +
+            '<div class="text-sm font-medium text-gray-900">' + (event.time ? formatTime(event.time) : 'All Day') + '</div>' +
+            '<div class="text-xs text-gray-500 capitalize">' + event.type.replace('-', ' ') + '</div>' +
+        '</div>' +
+    '</div>' +
+    (event.notes ? '<div class="mt-3 pt-3 border-t border-gray-200"><div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + event.notes + '</div></div>' : '');
             
             dateSection.appendChild(eventCard);
         });
@@ -1630,8 +1656,9 @@ function editNote(noteId) {
                 '</div>' +
                 
                 '<!-- Dining details -->' +
-                '<div class="space-y-2">' +
-                    (dining.notes ? '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + dining.notes + '</div>' : '') +
+'<div class="space-y-2">' +
+    (dining.address ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">📍 ' + dining.address + '</div>' : '') +
+    (dining.notes ? '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + dining.notes + '</div>' : '') +
                     '<div class="flex flex-wrap gap-2">' +
                         (dining.website ? 
                             '<a href="' + (dining.website.startsWith('http') ? dining.website : 'https://' + dining.website) + '" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
@@ -1694,9 +1721,10 @@ function editNote(noteId) {
                 '</div>' +
                 
                 '<!-- Dining details -->' +
-                '<div class="space-y-2">' +
-                    (dining.notes ? '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + dining.notes + '</div>' : '') +
-                    '<div class="flex flex-wrap gap-2">' +
+'<div class="space-y-2">' +
+    (dining.address ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">📍 ' + dining.address + '</div>' : '') +
+    (dining.notes ? '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + dining.notes + '</div>' : '') +
+    '<div class="flex flex-wrap gap-2">' +
                         (dining.website ? 
                             '<a href="' + (dining.website.startsWith('http') ? dining.website : 'https://' + dining.website) + '" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
                                 '<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
@@ -1755,11 +1783,12 @@ function editNote(noteId) {
                 '</div>' +
                 
                 '<!-- Activity details -->' +
-                '<div class="space-y-2">' +
-                    (activity.dates ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">📅 ' + formatDate(activity.dates) + '</div>' : '') +
-                    (activity.time ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">⏰ ' + formatTime(activity.time) + '</div>' : '') +
-                    (activity.cost ? '<div class="text-sm text-green-600 bg-white/80 rounded-xl p-3">💰 ' + activity.cost + '</div>' : '') +
-                    (activity.notes ? '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + activity.notes + '</div>' : '') +
+'<div class="space-y-2">' +
+    (activity.dates ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">📅 ' + formatDate(activity.dates) + '</div>' : '') +
+    (activity.time ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">⏰ ' + formatTime(activity.time) + '</div>' : '') +
+    (activity.cost ? '<div class="text-sm text-green-600 bg-white/80 rounded-xl p-3">💰 ' + activity.cost + '</div>' : '') +
+    (activity.address ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">📍 ' + activity.address + '</div>' : '') +
+    (activity.notes ? '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + activity.notes + '</div>' : '') +
                     '<div class="flex flex-wrap gap-2">' +
                         (activity.link ? 
                             '<a href="' + (activity.link.startsWith('http') ? activity.link : 'https://' + activity.link) + '" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
@@ -1818,11 +1847,12 @@ function editNote(noteId) {
                 '</div>' +
                 
                 '<!-- Activity details -->' +
-                '<div class="space-y-2">' +
-                    (activity.dates ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">📅 ' + formatDate(activity.dates) + '</div>' : '') +
-                    (activity.time ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">⏰ ' + formatTime(activity.time) + '</div>' : '') +
-                    (activity.cost ? '<div class="text-sm text-green-600 bg-white/80 rounded-xl p-3">💰 ' + activity.cost + '</div>' : '') +
-                    (activity.notes ? '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + activity.notes + '</div>' : '') +
+'<div class="space-y-2">' +
+    (activity.dates ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">📅 ' + formatDate(activity.dates) + '</div>' : '') +
+    (activity.time ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">⏰ ' + formatTime(activity.time) + '</div>' : '') +
+    (activity.cost ? '<div class="text-sm text-green-600 bg-white/80 rounded-xl p-3">💰 ' + activity.cost + '</div>' : '') +
+    (activity.address ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">📍 ' + activity.address + '</div>' : '') +
+    (activity.notes ? '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + activity.notes + '</div>' : '') +
                     '<div class="flex flex-wrap gap-2">' +
                         (activity.link ? 
                             '<a href="' + (activity.link.startsWith('http') ? activity.link : 'https://' + activity.link) + '" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
