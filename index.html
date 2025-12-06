@@ -1119,12 +1119,9 @@ if (tripData.departures) {
     
     // ACTIVITIES WITH NOTES (updated section)
     if (tripData.activities) {
-        tripData.activities.forEach(function(activity) {
-            if (activity.dates) {
-                let subtitle = activity.place + ' • ' + activity.type;
-                if (activity.notes && activity.notes.trim() !== '') {
-                    subtitle += ' • Notes: ' + activity.notes;
-                }
+    tripData.activities.forEach(function(activity) {
+        if (activity.dates) {
+            let subtitle = activity.place + ' • ' + activity.type;
                 
                 events.push({
                     date: activity.dates,
@@ -1137,7 +1134,8 @@ if (tripData.departures) {
                     clickable: true,
                     clickAction: activity.link ? 'website' : 'tab',
                     url: activity.link,
-                    tabTarget: 'experiences-activities'
+                    tabTarget: 'experiences-activities',
+					notes: activity.notes
                 });
             }
         });
@@ -1156,9 +1154,6 @@ if (tripData.departures) {
                 
                 if (eventDate) {
                     let subtitle = dining.type + ' • ' + dining.island;
-                    if (dining.notes && dining.notes.trim() !== '') {
-                        subtitle += ' • Notes: ' + dining.notes;
-                    }
                     
                     events.push({
                         date: eventDate,
@@ -1171,7 +1166,8 @@ if (tripData.departures) {
                         clickable: true,
                         clickAction: dining.website ? 'website' : 'tab',
                         url: dining.website,
-                        tabTarget: 'experiences-dining'
+                        tabTarget: 'experiences-dining',
+						notes: dining.notes
                     });
                 }
             }
