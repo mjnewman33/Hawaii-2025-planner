@@ -972,37 +972,38 @@ function toggleSchedule() {
     
     const events = [];
     
-    // GROUP FLIGHTS BY DATE (updated section)
-    if (tripData.arrivals) {
-        const arrivalsByDate = {};
-        tripData.arrivals.forEach(function(flight) {
-            if (flight.date) {
-                if (!arrivalsByDate[flight.date]) {
-                    arrivalsByDate[flight.date] = [];
-                }
-                arrivalsByDate[flight.date].push(flight);
+    // GROUP FLIGHTS BY DATE AND FLIGHT (updated section)
+if (tripData.arrivals) {
+    const arrivalsByDateAndFlight = {};
+    tripData.arrivals.forEach(function(flight) {
+        if (flight.date) {
+            const groupKey = flight.date + '|' + flight.airline + '|' + flight.flightNumber;
+            if (!arrivalsByDateAndFlight[groupKey]) {
+                arrivalsByDateAndFlight[groupKey] = [];
             }
-        });
-        
-        Object.keys(arrivalsByDate).forEach(function(date) {
-    const flightsOnDate = arrivalsByDate[date];
-    const coupleNames = flightsOnDate.map(f => f.names).join(', ');
-    const formattedNames = formatNamesGrammatically(coupleNames);
-    const firstFlight = flightsOnDate[0];
-    
-    events.push({
-        date: date,
-        time: firstFlight.arrivalTime,
-        title: formattedNames + ' Arrival',
-        subtitle: firstFlight.airline + ' ' + firstFlight.flightNumber + ' → ' + firstFlight.destination,
-        type: 'arrival',
-        icon: '✈️',
-        color: 'bg-blue-500',
-        clickable: true,
-        clickAction: 'flights-arrivals'
+            arrivalsByDateAndFlight[groupKey].push(flight);
+        }
     });
-});
-    }
+    
+    Object.keys(arrivalsByDateAndFlight).forEach(function(groupKey) {
+        const flightsInGroup = arrivalsByDateAndFlight[groupKey];
+        const coupleNames = flightsInGroup.map(f => f.names).join(', ');
+        const formattedNames = formatNamesGrammatically(coupleNames);
+        const firstFlight = flightsInGroup[0];
+        
+        events.push({
+            date: firstFlight.date,
+            time: firstFlight.arrivalTime,
+            title: formattedNames + ' Arrival',
+            subtitle: firstFlight.airline + ' ' + firstFlight.flightNumber + ' → ' + firstFlight.destination,
+            type: 'arrival',
+            icon: '✈️',
+            color: 'bg-blue-500',
+            clickable: true,
+            clickAction: 'flights-arrivals'
+        });
+    });
+}
     
     // INTER-ISLAND FLIGHTS (grouped by date with proper grammar)
 if (tripData.interIslandFlights) {
