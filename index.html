@@ -1500,12 +1500,14 @@ function loadNotes() {
                 <label class="block text-sm font-medium text-gray-700 mb-1">Note</label>
                 <textarea id="noteText" rows="3" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" placeholder="Enter your trip note..."></textarea>
             </div>
-            <button id="addNoteBtn" onclick="saveNewNote()" class="w-full bg-gradient-to-r from-emerald-400 to-teal-500 text-white py-3 rounded-2xl font-medium hover:from-emerald-500 hover:to-teal-600">
+            <button id="addNoteBtn" class="w-full bg-gradient-to-r from-emerald-400 to-teal-500 text-white py-3 rounded-2xl font-medium hover:from-emerald-500 hover:to-teal-600">
                 Add Note
             </button>
         </div>
     `;
     container.appendChild(noteForm);
+	/ Add event listener for mobile compatibility
+   document.getElementById('addNoteBtn').addEventListener('click', saveNewNote);
     
     // Show existing notes
     if (!tripData.calendarNotes || tripData.calendarNotes.length === 0) {
