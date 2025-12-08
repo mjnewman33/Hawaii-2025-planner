@@ -2007,41 +2007,98 @@ if (pendingActivities.length > 0 || pendingDining.length > 0) {
                 container.appendChild(itemCard);
             });
             
-            // Add Maui activities at the bottom
-            const mauiActivities = (tripData.activities || []).filter(function(activity) {
-                return activity.place === 'Maui';
-            });
-            
-            if (mauiActivities.length > 0) {
-                // Add separator
-                const separator = document.createElement('div');
-                separator.className = 'bg-gradient-to-r from-orange-100 to-yellow-100 rounded-2xl p-4 mb-4 mt-6';
-                separator.innerHTML = '<h3 class="text-lg font-semibold text-gray-900 text-center">🌺 Maui Activities</h3>';
-                container.appendChild(separator);
-                
-                mauiActivities.forEach(function(activity) {
-                    const activityCard = createLocationActivityCard(activity);
-                    container.appendChild(activityCard);
-                });
-            }
-            
-            // Add Maui dining options at the bottom
-            const mauiDining = (tripData.dining || []).filter(function(dining) {
-                return dining.island === 'Maui';
-            });
-            
-            if (mauiDining.length > 0) {
-                // Add separator
-                const separator = document.createElement('div');
-                separator.className = 'bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-4 mb-4 mt-6';
-                separator.innerHTML = '<h3 class="text-lg font-semibold text-gray-900 text-center">🍽️ Maui Dining</h3>';
-                container.appendChild(separator);
-                
-                mauiDining.forEach(function(dining) {
-                    const diningCard = createLocationDiningCard(dining);
-                    container.appendChild(diningCard);
-                });
-            }
+            // Filter confirmed items with dates
+const confirmedActivities = (tripData.activities || []).filter(function(activity) {
+    return activity.place === 'Maui' && 
+           (activity.status === 'Confirmed' || activity.status === 'Booked') && 
+           activity.dates;
+});
+
+const confirmedDining = (tripData.dining || []).filter(function(dining) {
+    return dining.island === 'Maui' && 
+           (dining.status === 'Confirmed' || dining.status === 'Booked');
+});
+
+// Combine confirmed items and sort by date
+const allConfirmedItems = [];
+confirmedActivities.forEach(function(activity) {
+    allConfirmedItems.push({type: 'activity', data: activity, date: activity.dates});
+});
+confirmedDining.forEach(function(dining) {
+    allConfirmedItems.push({type: 'dining', data: dining, date: dining.dates || '9999-12-31'});
+});
+
+allConfirmedItems.sort(function(a, b) {
+    return new Date(a.date) - new Date(b.date);
+});
+
+// Add calendar notes for Maui dates (1/3/26 to 1/8/26)
+const mauiNotes = (tripData.calendarNotes || []).filter(function(note) {
+    if (!note.date) return false;
+    const noteDate = new Date(note.date);
+    const startDate = new Date('2026-01-03');
+    const endDate = new Date('2026-01-08');
+    return noteDate >= startDate && noteDate <= endDate;
+});
+
+mauiNotes.forEach(function(note) {
+    allConfirmedItems.push({type: 'note', data: note, date: note.date});
+});
+
+allConfirmedItems.sort(function(a, b) {
+    return new Date(a.date) - new Date(b.date);
+});
+
+// Group by date and display
+let currentDate = '';
+allConfirmedItems.forEach(function(item) {
+    if (item.date !== currentDate && item.date !== '9999-12-31') {
+        currentDate = item.date;
+        const dateHeader = document.createElement('div');
+        dateHeader.className = 'bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-3 mb-4 mt-6';
+        dateHeader.innerHTML = '<h3 class="text-lg font-semibold text-gray-900 text-center">📅 ' + formatDate(currentDate) + '</h3>';
+        container.appendChild(dateHeader);
+    }
+    
+    if (item.type === 'activity') {
+        const activityCard = createLocationActivityCard(item.data);
+        container.appendChild(activityCard);
+    } else if (item.type === 'dining') {
+        const diningCard = createLocationDiningCard(item.data);
+        container.appendChild(diningCard);
+    } else if (item.type === 'note') {
+        const noteCard = createNoteCard(item.data);
+        container.appendChild(noteCard);
+    }
+});
+
+// Add pending section
+const pendingActivities = (tripData.activities || []).filter(function(activity) {
+    return activity.place === 'Maui' && 
+           activity.status === 'Pending';
+});
+
+const pendingDining = (tripData.dining || []).filter(function(dining) {
+    return dining.island === 'Maui' && 
+           dining.status === 'Pending';
+});
+
+if (pendingActivities.length > 0 || pendingDining.length > 0) {
+    const pendingHeader = document.createElement('div');
+    pendingHeader.className = 'bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-3 mb-4 mt-6';
+    pendingHeader.innerHTML = '<h3 class="text-lg font-semibold text-gray-900 text-center">⏳ Pending - No Date Set</h3>';
+    container.appendChild(pendingHeader);
+    
+    pendingActivities.forEach(function(activity) {
+        const activityCard = createLocationActivityCard(activity);
+        container.appendChild(activityCard);
+    });
+    
+    pendingDining.forEach(function(dining) {
+        const diningCard = createLocationDiningCard(dining);
+        container.appendChild(diningCard);
+    });
+}
         }
 
         function createAccommodationCard(accommodation, isHawaii) {
