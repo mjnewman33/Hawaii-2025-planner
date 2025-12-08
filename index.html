@@ -1562,12 +1562,12 @@ function createNoteCard(note) {
 }
 
 async function saveNewNote() {
-    const button = document.querySelector('button[onclick="saveNewNote()"]');
+    const button = document.getElementById('addNoteBtn');
     const originalText = button.innerHTML;
     
     // Disable button and show loading
     button.disabled = true;
-    button.innerHTML = 'Adding Note...';
+    button.innerHTML = 'Please wait...';
     
     const date = document.getElementById('noteDate').value;
     const noteText = document.getElementById('noteText').value;
@@ -1579,8 +1579,6 @@ async function saveNewNote() {
         button.innerHTML = originalText;
         return;
     }
-    
-    try {
     
     try {
         const maxId = tripData.calendarNotes ? Math.max(...tripData.calendarNotes.map(n => n.id), 0) : 0;
