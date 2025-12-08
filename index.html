@@ -1958,7 +1958,7 @@ allConfirmedItems.forEach(function(item) {
     const diningCard = createLocationDiningCard(item.data);
     container.appendChild(diningCard);
 } else if (item.type === 'note') {
-    const noteCard = createCalendarNoteCard(item.data);
+    const noteCard = createNoteCard(item.data);
     container.appendChild(noteCard);
 }
 });
