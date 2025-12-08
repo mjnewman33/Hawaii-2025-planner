@@ -1620,9 +1620,16 @@ async function deleteNote(noteId) {
             await deleteItemFromAPI('calendarNotes', noteId);
             
             tripData.calendarNotes = tripData.calendarNotes.filter(n => n.id !== noteId);
-            loadNotes();
-            
-            alert('Note deleted successfully!');
+loadNotes();
+
+// Refresh current tab if it's Hawaii or Maui
+if (currentActiveTab === 'hawaii') {
+    loadHawaii();
+} else if (currentActiveTab === 'maui') {
+    loadMaui();
+}
+
+alert('Note deleted successfully!');
             
         } catch (error) {
             console.error('Error deleting note:', error);
