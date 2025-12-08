@@ -1036,26 +1036,27 @@ if (tripData.interIslandFlights) {
     });
 }
     
-    // DEPARTURES (grouped by date with proper grammar)
+  // DEPARTURES (grouped by date AND flight)
 if (tripData.departures) {
-    const departuresByDate = {};
+    const departuresByDateAndFlight = {};
     tripData.departures.forEach(function(flight) {
         if (flight.date) {
-            if (!departuresByDate[flight.date]) {
-                departuresByDate[flight.date] = [];
+            const groupKey = flight.date + '|' + flight.airline + '|' + flight.flightNumber;
+            if (!departuresByDateAndFlight[groupKey]) {
+                departuresByDateAndFlight[groupKey] = [];
             }
-            departuresByDate[flight.date].push(flight);
+            departuresByDateAndFlight[groupKey].push(flight);
         }
     });
     
-    Object.keys(departuresByDate).forEach(function(date) {
-        const flightsOnDate = departuresByDate[date];
-        const coupleNames = flightsOnDate.map(f => f.names).join(', ');
+    Object.keys(departuresByDateAndFlight).forEach(function(groupKey) {
+        const flightsInGroup = departuresByDateAndFlight[groupKey];
+        const coupleNames = flightsInGroup.map(f => f.names).join(', ');
         const formattedNames = formatNamesGrammatically(coupleNames);
-        const firstFlight = flightsOnDate[0];
+        const firstFlight = flightsInGroup[0];
         
         events.push({
-            date: date,
+            date: firstFlight.date,
             time: firstFlight.departureTime,
             title: formattedNames + ' Departure',
             subtitle: firstFlight.airline + ' ' + firstFlight.flightNumber,
