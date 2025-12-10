@@ -310,13 +310,25 @@ function toggleSchedule() {
                 </div>
 
                 <!-- Experiences View -->
-                <div id="experiencesView" class="space-y-4 hidden">
-                    <div>
-                        <button id="experienceButton" onclick="addNewExperience()" class="w-full bg-gradient-to-r from-emerald-400 to-teal-500 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:from-emerald-500 hover:to-teal-600 text-center">
-                        </button>
+               <div id="experiencesView" class="space-y-4 hidden">
+				<div class="bg-gradient-to-r from-cyan-100/80 to-blue-100/80 rounded-3xl p-1">
+                        <div class="grid grid-cols-3 gap-1">
+                            <button onclick="setExperienceSubTab('activities')" id="activitiesSubTab" class="py-2 px-4 rounded-2xl text-sm font-medium transition-colors bg-white text-blue-600 shadow-sm">
+                                Activities
+                            </button>
+                            <button onclick="setExperienceSubTab('dining')" id="diningSubTab" class="py-2 px-4 rounded-2xl text-sm font-medium transition-colors text-gray-600 hover:text-gray-900">
+                                Dining
+                            </button>
+                            <button onclick="setExperienceSubTab('notes')" id="notesSubTab" class="py-2 px-4 rounded-2xl text-sm font-medium transition-colors text-gray-600 hover:text-gray-900">
+                                Notes
+                            </button>
+                        </div>
                     </div>
 
-				<div class="bg-gradient-to-r from-cyan-100/80 to-blue-100/80 rounded-3xl p-1">
+                    <div class="flex justify-center">
+                        <button id="experienceButton" onclick="addNewExperience()" class="w-1/2 bg-gradient-to-r from-emerald-400 to-teal-500 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:from-emerald-500 hover:to-teal-600 text-center">
+                        </button>
+                    </div>
                     <div class="grid grid-cols-3 gap-1">
                         <button onclick="setExperienceSubTab('activities')" id="activitiesSubTab" class="py-2 px-4 rounded-2xl text-sm font-medium transition-colors bg-white text-blue-600 shadow-sm">
                             Activities
