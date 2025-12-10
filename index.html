@@ -311,9 +311,8 @@ function toggleSchedule() {
 
                 <!-- Experiences View -->
                 <div id="experiencesView" class="space-y-4 hidden">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-xl font-semibold text-gray-900">Experiences</h2>
-                        <button onclick="addNewExperience()" class="bg-gradient-to-r from-emerald-400 to-teal-500 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:from-emerald-500 hover:to-teal-600">
+                    <div>
+                        <button id="experienceButton" onclick="addNewExperience()" class="w-full bg-gradient-to-r from-emerald-400 to-teal-500 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:from-emerald-500 hover:to-teal-600 text-center">
                             Add Experience
                         </button>
                     </div>
@@ -796,6 +795,21 @@ function formatNotesWithLinks(notes) {
     return '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + notesWithLinks + '</div>';
 }
 
+		}
+
+function getDynamicButtonText() {
+    switch (currentExperienceSubTab) {
+        case 'activities':
+            return 'Add Activity';
+        case 'dining':
+            return 'Add Dining';
+        case 'notes':
+            return 'Add Note';
+        default:
+            return 'Add Experience';
+    }
+}
+
         // Create a proper Hawaii datetime (Hawaii is always UTC-10, no DST)
         function createHawaiiDateTime(dateStr, timeStr) {
             const hawaiiOffset = -10; // Hours from UTC (Hawaii doesn't do daylight saving)
@@ -958,6 +972,12 @@ function formatNotesWithLinks(notes) {
             }
             
             loadExperienceContent(subTab);
+            
+            // Update button text
+            const button = document.getElementById('experienceButton');
+            if (button) {
+                button.textContent = getDynamicButtonText();
+            }
         }
 
         function loadExperienceContent(subTab) {
