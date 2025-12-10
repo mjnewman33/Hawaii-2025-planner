@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hawaii-trip-v16';  // your version
+const CACHE_NAME = 'hawaii-trip-v17';  // your version
 const urlsToCache = [
   '/',
   '/index.html'
@@ -54,6 +54,7 @@ self.addEventListener('fetch', event => {
       .then(response => response || fetch(event.request))
   );
 });
+
 
 
 
