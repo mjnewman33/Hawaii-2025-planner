@@ -326,7 +326,7 @@ function toggleSchedule() {
                     </div>
 
                     <div class="flex justify-center">
-                        <button id="experienceButton" onclick="addNewExperience()" class="w-1/2 bg-gradient-to-r from-emerald-400 to-teal-500 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:from-emerald-500 hover:to-teal-600 text-center">
+                        <button id="experienceButton" onclick="addNewExperience()" class="w-4/5 bg-gradient-to-r from-emerald-400 to-teal-500 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:from-emerald-500 hover:to-teal-600 text-center">
                         </button>
                     </div>
                     <div id="experienceContent"></div>
@@ -796,11 +796,11 @@ function formatNotesWithLinks(notes) {
 function getDynamicButtonText() {
     switch (currentExperienceSubTab) {
         case 'activities':
-            return 'Add Activity';
+            return 'Add Activity and Excursions';
         case 'dining':
-            return 'Add Dining';
+            return 'Add Dining and Drinks';
         case 'notes':
-            return 'Add Note';
+            return 'Add General Trip Note';
         default:
             return 'Add Experience';
     }
