@@ -1317,19 +1317,13 @@ if (tripData.departures) {
             eventCard.className = 'bg-white/80 rounded-xl p-4 mb-3 border-l-4 border-cyan-500';
             
             // Add clickable styling and handler
-            if (event.clickable) {
-                eventCard.className += ' cursor-pointer hover:bg-white/90 transition-colors';
-                eventCard.addEventListener('click', function() {
-                    handleCalendarEventClick(event);
-                });
-            }
-            
-            eventCard.innerHTML = 
+           eventCard.innerHTML = 
     '<div class="flex items-center justify-between">' +
         '<div class="flex items-center space-x-3">' +
             '<div class="p-2 ' + event.color + ' rounded-xl text-white text-lg">' + event.icon + '</div>' +
             '<div>' +
-                '<h4 class="font-semibold text-gray-900">' + event.title + '</h4>' +
+                '<h4 class="font-semibold text-gray-900' + (event.clickable ? ' cursor-pointer hover:text-blue-600 transition-colors' : '') + '"' + 
+                (event.clickable ? ' onclick="handleCalendarEventClick(' + JSON.stringify(event).replace(/"/g, '&quot;') + ')"' : '') + '>' + event.title + '</h4>' +
                 '<p class="text-sm text-gray-600">' + event.subtitle + '</p>' +
             '</div>' +
         '</div>' +
@@ -1338,7 +1332,7 @@ if (tripData.departures) {
             '<div class="text-xs text-gray-500 capitalize">' + (event.type === 'note' ? '' : event.type.replace('-', ' ')) + '</div>' +
         '</div>' +
     '</div>' +
-    (event.notes ? '<div class="mt-3 pt-3 border-t border-gray-200"><div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + event.notes + '</div></div>' : '');
+    (event.notes ? '<div class="mt-3 pt-3 border-t border-gray-200"><div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + formatNotesWithLinks(event.notes) + '</div></div>' : '');
             
             dateSection.appendChild(eventCard);
         });
