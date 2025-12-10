@@ -969,17 +969,17 @@ function getDynamicButtonText() {
             }
             
             loadExperienceContent(subTab);
-            
-            // Update button text
-            const button = document.getElementById('experienceButton');
-            if (button) {
-                button.textContent = getDynamicButtonText();
-            }
         }
 
         function loadExperienceContent(subTab) {
             const container = document.getElementById('experienceContent');
             container.innerHTML = '';
+
+			// Update button text
+           const button = document.getElementById('experienceButton');
+           if (button) {
+               button.textContent = getDynamicButtonText();
+           }
     
             if (subTab === 'activities') {
                 loadActivities();
