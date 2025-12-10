@@ -2507,21 +2507,22 @@ if (pendingActivities.length > 0 || pendingDining.length > 0) {
 }
 
         function addNewActivity() {
-            const maxId = tripData.activities.length > 0 ? Math.max.apply(Math, tripData.activities.map(function(item) { return item.id; })) : 0;
-            const newId = maxId + 1;
-            const newItem = { 
-                id: newId, 
-                name: '', 
-                type: '', 
-                place: '', 
-                dates: '', 
-                time: '', 
-                cost: '', 
-                link: '', 
-                participants: [],
-                status: 'Pending',
-                notes: ''
-            };
+    const maxId = tripData.activities.length > 0 ? Math.max.apply(Math, tripData.activities.map(function(item) { return item.id; })) : 0;
+    const newId = maxId + 1;
+    const newItem = { 
+        id: newId, 
+        name: '', 
+        type: '', 
+        place: '', 
+        dates: '', 
+        time: '', 
+        cost: '', 
+        link: '', 
+        participants: [],
+        status: 'Pending',
+        notes: '',
+        address: ''
+    };
             
             currentEditingItem = newItem;
             currentEditingType = 'activities';
@@ -2529,18 +2530,19 @@ if (pendingActivities.length > 0 || pendingDining.length > 0) {
         }
 
         function addNewDining() {
-            const maxId = tripData.dining.length > 0 ? Math.max.apply(Math, tripData.dining.map(function(item) { return item.id; })) : 0;
-            const newId = maxId + 1;
-            const newItem = { 
-                id: newId, 
-                name: '', 
-                type: '', 
-                island: '', 
-                website: '', 
-                participants: [],
-                status: 'Pending',
-                notes: ''
-            };
+    const maxId = tripData.dining.length > 0 ? Math.max.apply(Math, tripData.dining.map(function(item) { return item.id; })) : 0;
+    const newId = maxId + 1;
+    const newItem = { 
+        id: newId, 
+        name: '', 
+        type: '', 
+        island: '', 
+        website: '', 
+        participants: [],
+        status: 'Pending',
+        notes: '',
+        address: ''
+    };
             
             currentEditingItem = newItem;
             currentEditingType = 'dining';
