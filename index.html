@@ -339,21 +339,33 @@ function toggleSchedule() {
                 <div id="hawaiiView" class="space-y-4 hidden">
                     <div class="flex items-center justify-between">
                         <h2 class="text-xl font-semibold text-gray-900">Big Island (Hawaii)</h2>
-                        <button onclick="addNewHawaiiItem()" class="bg-gradient-to-r from-emerald-400 to-teal-500 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:from-emerald-500 hover:to-teal-600 flex items-center">
-                            Add Item
-                        </button>
-                    </div>
+                        <div class="relative">
+                            <select onchange="handleHawaiiAdd(this.value); this.value='';" class="bg-gradient-to-r from-emerald-400 to-teal-500 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:from-emerald-500 hover:to-teal-600 cursor-pointer">
+                                <option value="">Add Item ▼</option>
+                                <option value="accommodation">Accommodation</option>
+                                <option value="car-rental">Car Rental</option>
+                                <option value="activity">Activity</option>
+                                <option value="dining">Dining</option>
+                            </select>
+                       </div>
+                  </div>
                     <div id="hawaiiContent"></div>
                 </div>
 
                 <!-- Maui View -->
                 <div id="mauiView" class="space-y-4 hidden">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-xl font-semibold text-gray-900">Maui</h2>
-                        <button onclick="addNewMauiItem()" class="bg-gradient-to-r from-emerald-400 to-teal-500 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:from-emerald-500 hover:to-teal-600 flex items-center">
-                            Add Item
-                        </button>
-                    </div>
+                    <<div class="flex items-center justify-between">
+                         <h2 class="text-xl font-semibold text-gray-900">Maui</h2>
+                         <div class="relative">
+                             <select onchange="handleMauiAdd(this.value); this.value='';" class="bg-gradient-to-r from-emerald-400 to-teal-500 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:from-emerald-500 hover:to-teal-600 cursor-pointer">
+                                 <option value="">Add Item ▼</option>
+                                 <option value="accommodation">Accommodation</option>
+                                 <option value="car-rental">Car Rental</option>
+                                 <option value="activity">Activity</option>
+                                 <option value="dining">Dining</option>
+                             </select>
+                        </div>
+                   </div>
                     <div id="mauiContent"></div>
                 </div>
             </div>
@@ -724,6 +736,65 @@ function toggleSchedule() {
                 default: return 'bg-orange-500';
             }
         }
+
+		// PHASE 1: Format date ranges for accommodations
+function formatDateRange(startDate, endDate) {
+    if (!startDate) return 'TBD';
+    
+    const start = new Date(startDate);
+    const startFormatted = start.toLocaleDateString('en-US', { 
+        weekday: 'short', 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+    });
+    
+    if (!endDate || endDate === startDate) {
+        return startFormatted;
+    }
+    
+    const end = new Date(endDate);
+    const endFormatted = end.toLocaleDateString('en-US', { 
+        weekday: 'short', 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+    });
+    
+    return startFormatted + ' thru ' + endFormatted;
+}
+
+// PHASE 2: Format confirmation links
+function formatConfirmation(confirmation) {
+    if (!confirmation) return '';
+    
+    // Check if it's a URL
+    if (confirmation.startsWith('http://') || confirmation.startsWith('https://')) {
+        return '<a href="' + confirmation + '" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
+            '<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>' +
+            '</svg>' +
+            'Reservation Link' +
+        '</a>';
+    } else {
+        return '<div class="text-sm text-gray-700 bg-green-50 rounded-xl p-3">📋 ' + confirmation + '</div>';
+    }
+}
+
+// PHASE 2: Format notes with auto-linking
+function formatNotesWithLinks(notes) {
+    if (!notes) return '';
+    
+    // Find URLs in notes
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    let linkCounter = 1;
+    
+    const notesWithLinks = notes.replace(urlRegex, function(url) {
+        return '<a href="' + url + '" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 font-medium">Link ' + (linkCounter++) + '</a>';
+    });
+    
+    return '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + notesWithLinks + '</div>';
+}
 
         // Create a proper Hawaii datetime (Hawaii is always UTC-10, no DST)
         function createHawaiiDateTime(dateStr, timeStr) {
@@ -1690,8 +1761,9 @@ function editNote(noteId) {
                 '<!-- Dining details -->' +
 '<div class="space-y-2">' +
     (dining.address ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">📍 ' + dining.address + '</div>' : '') +
-    (dining.notes ? '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + dining.notes + '</div>' : '') +
-                    '<div class="flex flex-wrap gap-2">' +
+    (dining.notes ? formatNotesWithLinks(dining.notes) : '') +
+    (dining.confirmation ? formatConfirmation(dining.confirmation) : '') +
+    '<div class="flex flex-wrap gap-2">' +
                         (dining.website ? 
                             '<a href="' + (dining.website.startsWith('http') ? dining.website : 'https://' + dining.website) + '" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
                                 '<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
@@ -1755,7 +1827,8 @@ function editNote(noteId) {
                 '<!-- Dining details -->' +
 '<div class="space-y-2">' +
     (dining.address ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">📍 ' + dining.address + '</div>' : '') +
-    (dining.notes ? '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + dining.notes + '</div>' : '') +
+    (dining.notes ? formatNotesWithLinks(dining.notes) : '') +
+    (dining.confirmation ? formatConfirmation(dining.confirmation) : '') +
     '<div class="flex flex-wrap gap-2">' +
                         (dining.website ? 
                             '<a href="' + (dining.website.startsWith('http') ? dining.website : 'https://' + dining.website) + '" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
@@ -1820,8 +1893,9 @@ function editNote(noteId) {
     (activity.time ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">⏰ ' + formatTime(activity.time) + '</div>' : '') +
     (activity.cost ? '<div class="text-sm text-green-600 bg-white/80 rounded-xl p-3">💰 ' + activity.cost + '</div>' : '') +
     (activity.address ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">📍 ' + activity.address + '</div>' : '') +
-    (activity.notes ? '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + activity.notes + '</div>' : '') +
-                    '<div class="flex flex-wrap gap-2">' +
+    (activity.notes ? formatNotesWithLinks(activity.notes) : '') +
+    (activity.confirmation ? formatConfirmation(activity.confirmation) : '') +
+    '<div class="flex flex-wrap gap-2">' +
                         (activity.link ? 
                             '<a href="' + (activity.link.startsWith('http') ? activity.link : 'https://' + activity.link) + '" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
                                 '<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
@@ -1884,8 +1958,9 @@ function editNote(noteId) {
     (activity.time ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">⏰ ' + formatTime(activity.time) + '</div>' : '') +
     (activity.cost ? '<div class="text-sm text-green-600 bg-white/80 rounded-xl p-3">💰 ' + activity.cost + '</div>' : '') +
     (activity.address ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">📍 ' + activity.address + '</div>' : '') +
-    (activity.notes ? '<div class="text-sm text-gray-700 bg-yellow-50 rounded-xl p-3">📝 ' + activity.notes + '</div>' : '') +
-                    '<div class="flex flex-wrap gap-2">' +
+    (activity.notes ? formatNotesWithLinks(activity.notes) : '') +
+    (activity.confirmation ? formatConfirmation(activity.confirmation) : '') +
+    '<div class="flex flex-wrap gap-2">' +
                         (activity.link ? 
                             '<a href="' + (activity.link.startsWith('http') ? activity.link : 'https://' + activity.link) + '" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-blue-600 hover:text-blue-800">' +
                                 '<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
@@ -2182,7 +2257,7 @@ if (pendingActivities.length > 0 || pendingDining.length > 0) {
                 
                 '<!-- Accommodation details -->' +
                 '<div class="space-y-2">' +
-                    (accommodation.dates ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">📅 ' + accommodation.dates + '</div>' : '') +
+                    (accommodation.dates ? '<div class="text-sm text-gray-600 bg-white/80 rounded-xl p-3">📅 ' + formatDateRange(accommodation.dates, accommodation.dateEnd) + '</div>' : '') +
                     (accommodation.times ? '<div class="text-sm text-cyan-800 bg-cyan-100/80 rounded-xl p-3 whitespace-pre-line">' + accommodation.times + '</div>' : '') +
                     (accommodation.payment ? '<div class="text-sm text-emerald-600 bg-emerald-100/80 rounded-xl p-3">💰 ' + accommodation.payment + '</div>' : '') +
                     (accommodation.confirmation ? '<div class="text-xs text-gray-500 bg-white/80 rounded-xl p-3">Confirmation: ' + accommodation.confirmation + '</div>' : '') +
@@ -2521,7 +2596,8 @@ if (pendingActivities.length > 0 || pendingDining.length > 0) {
         participants: [],
         status: 'Pending',
         notes: '',
-        address: ''
+        address: '',
+		confirmation: ''
     };
             
             currentEditingItem = newItem;
@@ -2541,7 +2617,8 @@ if (pendingActivities.length > 0 || pendingDining.length > 0) {
         participants: [],
         status: 'Pending',
         notes: '',
-        address: ''
+        address: '',
+		confirmation: ''
     };
             
             currentEditingItem = newItem;
@@ -2549,13 +2626,33 @@ if (pendingActivities.length > 0 || pendingDining.length > 0) {
             openEditModal(newItem, 'dining');
         }
 
-        function addNewHawaiiItem() {
-            addNewItem('hawaii');
-        }
+        function handleHawaiiAdd(value) {
+    if (value === 'accommodation' || value === 'car-rental') {
+        addNewItem('hawaii');
+    } else if (value === 'activity') {
+        setActiveTab('experiences');
+        setExperienceSubTab('activities');
+        addNewActivity();
+    } else if (value === 'dining') {
+        setActiveTab('experiences');
+        setExperienceSubTab('dining');
+        addNewDining();
+    }
+}
 
-        function addNewMauiItem() {
-            addNewItem('maui');
-        }
+function handleMauiAdd(value) {
+    if (value === 'accommodation' || value === 'car-rental') {
+        addNewItem('maui');
+    } else if (value === 'activity') {
+        setActiveTab('experiences');
+        setExperienceSubTab('activities');
+        addNewActivity();
+    } else if (value === 'dining') {
+        setActiveTab('experiences');
+        setExperienceSubTab('dining');
+        addNewDining();
+    }
+}
 
         function addNewItem(itemType) {
             const actualItemType = itemType === 'inter-island' ? 'interIslandFlights' : itemType;
@@ -2605,33 +2702,35 @@ if (pendingActivities.length > 0 || pendingDining.length > 0) {
                     };
                     break;
                 case 'hawaii':
-                    newItem = { 
-                        id: newId, 
-                        name: '', 
-                        type: '', 
-                        dates: '', 
-                        times: '', 
-                        status: 'Pending', 
-                        payment: '', 
-                        confirmation: '', 
-                        additionalInfo: '', 
-                        link: '' 
-                    };
-                    break;
+    newItem = { 
+        id: newId, 
+        name: '', 
+        type: '', 
+        dates: '', 
+        dateEnd: '',
+        times: '', 
+        status: 'Pending', 
+        payment: '', 
+        confirmation: '', 
+        additionalInfo: '', 
+        link: '' 
+    };
+    break;
                 case 'maui':
-                    newItem = { 
-                        id: newId, 
-                        item: '', 
-                        type: '', 
-                        dates: '', 
-                        times: '', 
-                        status: 'Pending', 
-                        payment: '', 
-                        confirmation: '', 
-                        additionalInfo: '', 
-                        link: '' 
-                    };
-                    break;
+    newItem = { 
+        id: newId, 
+        item: '', 
+        type: '', 
+        dates: '', 
+        dateEnd: '',
+        times: '', 
+        status: 'Pending', 
+        payment: '', 
+        confirmation: '', 
+        additionalInfo: '', 
+        link: '' 
+    };
+    break;
             }
             
             currentEditingItem = newItem;
@@ -2877,8 +2976,12 @@ if (pendingActivities.length > 0 || pendingDining.length > 0) {
                         '<input name="type" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.type || '') + '">' +
                     '</div>' +
                     '<div class="mb-3">' +
-                        '<label class="block text-sm font-medium text-gray-700 mb-1">Date(s)</label>' +
-                        '<input name="dates" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.dates || '') + '">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>' +
+                        '<input name="dates" type="date" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.dates || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">End Date (optional)</label>' +
+                        '<input name="dateEnd" type="date" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.dateEnd || '') + '">' +
                     '</div>' +
                     '<div class="mb-3">' +
                         '<label class="block text-sm font-medium text-gray-700 mb-1">Time(s)</label>' +
@@ -2960,6 +3063,10 @@ if (pendingActivities.length > 0 || pendingDining.length > 0) {
                     '<div class="mb-3">' +
                         '<label class="block text-sm font-medium text-gray-700 mb-1">Website/Booking Link</label>' +
                         '<input name="link" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.link || '') + '">' +
+                     '</div>' +
+                     '<div class="mb-3">' +
+                         '<label class="block text-sm font-medium text-gray-700 mb-1">Confirmation/Reservation</label>' +
+                         '<input name="confirmation" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.confirmation || '') + '" placeholder="Confirmation number or reservation link">' +
                     '</div>' +
                     '<div class="mb-3">' +
                         '<label class="block text-sm font-medium text-gray-700 mb-1">Address/Location</label>' +
@@ -3015,6 +3122,10 @@ if (pendingActivities.length > 0 || pendingDining.length > 0) {
                     '<div class="mb-3">' +
                         '<label class="block text-sm font-medium text-gray-700 mb-1">Website/Link</label>' +
                         '<input name="website" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.website || '') + '">' +
+                    '</div>' +
+                    '<div class="mb-3">' +
+                        '<label class="block text-sm font-medium text-gray-700 mb-1">Confirmation/Reservation</label>' +
+                        '<input name="confirmation" class="w-full p-3 border-2 border-cyan-200 rounded-2xl bg-white/90" value="' + (item.confirmation || '') + '" placeholder="Confirmation number or reservation link">' +
                     '</div>' +
                     '<div class="mb-3">' +
                         '<label class="block text-sm font-medium text-gray-700 mb-1">Address/Location</label>' +
