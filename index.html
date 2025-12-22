@@ -152,7 +152,7 @@
         </select>
     </div>
     <div class="flex justify-between items-center gap-6">
-    <button onclick="openPlexModal()" class="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white px-4 py-2 rounded-2xl text-sm font-medium shadow-lg transition-colors flex items-center justify-center">
+    <button onclick="openPlexModal()" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-4 py-2 rounded-2xl text-sm font-medium shadow-lg transition-colors flex items-center justify-center">
         🎬 Free In-Flight Media
     </button>
     <button onclick="window.open('https://nphoto.newman.technology/share/vPOPBcS6zwcpr2xF22w3s7kPfnAkODhvVn6CC4HosT8yKjaSmDZXUpPURUUwAWaKKaw')" class="bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white px-4 py-2 rounded-2xl text-sm font-medium shadow-lg transition-colors flex items-center justify-center">
@@ -401,14 +401,14 @@ function toggleSchedule() {
         </div>
 
 
-        <!-- Plex Media Modal -->
+        <!-- Plex Media Modal (Updated for Jellyfin) -->
 <div id="plexModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 hidden">
-    <div class="bg-gradient-to-br from-gray-900 to-black rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-yellow-500/30">
+    <div class="bg-gradient-to-br from-gray-900 to-black rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-purple-500/30">
         <div class="p-6">
             <div class="text-center mb-6">
-                <img src="images/plexlogo.png" alt="Plex Logo" class="w-24 h-auto mx-auto mb-4">
+                <img src="images/jellyfin-logo.png" alt="Jellyfin Logo" class="w-48 h-auto mx-auto mb-4">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-2xl font-bold text-yellow-400">How to Download Mike's Movies & Shows on Plex</h3>
+                    <h3 class="text-2xl font-bold text-purple-400">How to Access Mike's Movies & Shows</h3>
                     <button onclick="closePlexModal()" class="text-gray-400 hover:text-white ml-4">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -418,73 +418,62 @@ function toggleSchedule() {
             </div>
             
             <div class="text-gray-100 space-y-6">
-                <div class="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-2xl p-4 border border-yellow-500/30">
-                    <p class="text-yellow-200">Hi Everyone! I've set up a Plex library with <strong>750 movies</strong> and <strong>800 TV episodes</strong>. You can download them onto your phone or tablet and watch them offline – like on a plane or during the trip.</p>
+                <div class="bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-2xl p-4 border border-purple-500/30">
+                    <p class="text-purple-200">Hi Everyone! I've set up a media server with <strong>thousands of movies and shows</strong>, and you will have the ability to add movies and shows too for free. You can download them onto your phone or tablet and watch them offline – like on a plane or during the trip. Jellyfin is the app you'll use to watch everything.</p>
                 </div>
                 
                 <div>
-                    <h4 class="text-xl font-semibold text-yellow-400 mb-3">1. Install the Plex App</h4>
+                    <h4 class="text-xl font-semibold text-purple-400 mb-3">1. Send Me Your Email</h4>
                     <ul class="space-y-2 ml-4 text-gray-200">
-                        <li>• <strong>iPhone/iPad:</strong> Open the App Store, search for <strong>Plex</strong>, and install <strong>Plex: Stream Movies & TV</strong></li>
-                        <li>• <strong>Android:</strong> Open the Google Play Store, search for <strong>Plex</strong>, and install <strong>Plex: Stream Movies & TV</strong></li>
+                        <li>• Text your email address to <strong class="text-purple-300">513-799-7977</strong> or email <strong class="text-purple-300">mikenewman@live.com</strong></li>
+                        <li>• I'll send you an automatic invitation with complete setup instructions</li>
+                        <li>• The invitation will guide you through creating your own account</li>
+                        <li>• Your invitation will also include directions on how to download any movie or show that's out and available to stream to the media server</li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h4 class="text-xl font-semibold text-yellow-400 mb-3">2. Wait for My Main Credentials</h4>
+                    <h4 class="text-xl font-semibold text-purple-400 mb-3">2. Install the Jellyfin App</h4>
                     <ul class="space-y-2 ml-4 text-gray-200">
-                        <li>• I will send you the main Plex account login details in a <strong>separate communication</strong></li>
-                        <li>• Keep an eye out for this – you'll need these credentials to sign in</li>
-                        <li>• Text me at <strong class="text-yellow-300">513-799-7977</strong> or email <strong class="text-yellow-300">mikenewman@live.com</strong> if you don't receive them</li>
+                        <li>• <strong>iPhone/iPad:</strong> Open the App Store, search for <strong>Jellyfin Mobile</strong>, and install it</li>
+                        <li>• <strong>Android:</strong> Open the Google Play Store, search for <strong>Jellyfin</strong>, and install the official app</li>
+                        <li>• The invitation email will have the exact server address to connect to</li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h4 class="text-xl font-semibold text-yellow-400 mb-3">3. Sign In to Plex</h4>
+                    <h4 class="text-xl font-semibold text-purple-400 mb-3">3. Basic Setup Overview</h4>
                     <ul class="space-y-2 ml-4 text-gray-200">
-                        <li>• Open the Plex app and use the main credentials I sent you to sign in</li>
-                        <li>• After signing in, you'll see a list of different user profiles</li>
-                        <li>• Look for and select <strong class="text-yellow-300">"Newman Guest"</strong></li>
+                        <li>• Open the Jellyfin app and add server using the address from your invitation</li>
+                        <li>• Sign in with the username and password you created during the invitation setup</li>
+                        <li>• You'll have access to my complete movie and TV library</li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h4 class="text-xl font-semibold text-yellow-400 mb-3">4. Use the Guest Account</h4>
+                    <h4 class="text-xl font-semibold text-purple-400 mb-3">4. How to Download for Offline</h4>
                     <ul class="space-y-2 ml-4 text-gray-200">
-                        <li>• When prompted for the Newman Guest password, enter: <strong class="text-yellow-300 bg-yellow-500/20 px-2 py-1 rounded">1234</strong></li>
-                        <li>• This will give you access to my complete movie and TV library</li>
-                        <li>• Everyone should use this same guest account</li>
+                        <li>• Browse through the movies or TV shows in the app</li>
+                        <li>• Find something you want to watch offline and <strong>tap on the movie poster</strong></li>
+                        <li>• Tap the <strong>3-dot menu</strong> and select <span class="bg-purple-500 text-white px-2 py-1 rounded font-bold">Download</span></li>
+                        <li>• Downloads appear in your <strong>Downloads</strong> section</li>
+                        <li>• Once finished, you can watch anytime – even with no internet</li>
                     </ul>
                 </div>
                 
-                <div>
-                    <h4 class="text-xl font-semibold text-yellow-400 mb-3">5. How to Download</h4>
-                    <ul class="space-y-2 ml-4 text-gray-200">
-                        <li>• Once in the Newman Guest account, browse through the movies or TV shows</li>
-                        <li>• Find something you want to watch offline and tap on it</li>
-                        <li>• Tap the <span class="bg-yellow-500 text-black px-2 py-1 rounded font-bold">Download button</span> (a downward arrow)</li>
-                        <li>• The download will start and appear in your <strong>Downloads</strong> section of the app</li>
-                        <li>• Once finished, you can watch it anytime – even with no internet</li>
-                    </ul>
-                </div>
-                
-                <div class="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-2xl p-4 border border-cyan-500/30">
-                    <h4 class="text-cyan-200 font-semibold mb-2">Important Notes</h4>
-                    <div class="text-cyan-200 space-y-1">
-                        <p>• <strong>Everyone uses the same guest account:</strong> Newman Guest (password: 1234)</p>
-                        <p>• I have a library of <strong>750 movies</strong> and <strong>800 TV episodes</strong></p>
-                        <p>• Downloads use storage space on your device</p>
-                        <p>• If there's something you'd like that isn't in my library, let me know and I'll try to add it</p>
+                <div class="bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl p-4 border border-blue-500/30">
+                    <div class="text-blue-200">
+                        <p>• <strong>Complete setup instructions</strong> will be in your invitation email</p>
                     </div>
                 </div>
                 
                 <div class="text-center">
-                    <p class="text-green-400 text-lg">✅ That's it! Download your favorites before the trip and you'll be ready to watch offline anywhere!</p>
+                    <p class="text-green-400 text-lg">✅ Send me your email and you'll get everything you need to start watching!</p>
                 </div>
             </div>
             
             <div class="mt-6 pt-4 border-t border-gray-700">
-                <button onclick="closePlexModal()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white py-3 rounded-2xl font-medium transition-colors">
+                <button onclick="closePlexModal()" class="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white py-3 rounded-2xl font-medium transition-colors">
                     🌺 Got it! Close
                 </button>
             </div>
